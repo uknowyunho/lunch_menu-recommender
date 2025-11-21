@@ -85,33 +85,6 @@
             .main-content {
                 margin-left: 250px;
                 padding: 30px;
-                height: 100vh;
-                overflow-y: auto;
-                overflow-x: hidden;
-            }
-
-            /* 메인 컨텐츠 스크롤바 스타일링 */
-            .main-content::-webkit-scrollbar {
-                width: 10px;
-            }
-
-            .main-content::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
-            }
-
-            .main-content::-webkit-scrollbar-thumb {
-                background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-                border-radius: 10px;
-            }
-
-            .main-content::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(180deg, #5a6fd8 0%, #6a3f92 100%);
-            }
-
-            /* 부드러운 스크롤 */
-            html {
-                scroll-behavior: smooth;
             }
 
             .header {
@@ -465,38 +438,32 @@
                 font-size: 0.95em;
             }
 
-            /* 맨 위로 버튼 */
-            .scroll-to-top {
-                position: fixed;
-                bottom: 30px;
-                right: 30px;
-                width: 50px;
-                height: 50px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border: none;
-                border-radius: 50%;
-                font-size: 1.5em;
-                cursor: pointer;
-                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
-                z-index: 1000;
+            /* 식당 섹션 스크롤 컨테이너 */
+            .restaurant-scroll-container {
+                max-height: 600px;
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding-right: 10px;
             }
 
-            .scroll-to-top.visible {
-                opacity: 1;
-                visibility: visible;
+            /* 식당 섹션 스크롤바 스타일링 */
+            .restaurant-scroll-container::-webkit-scrollbar {
+                width: 8px;
             }
 
-            .scroll-to-top:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            .restaurant-scroll-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+                margin: 5px 0;
             }
 
-            .scroll-to-top:active {
-                transform: translateY(-2px);
+            .restaurant-scroll-container::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+                border-radius: 10px;
+            }
+
+            .restaurant-scroll-container::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(180deg, #5a6fd8 0%, #6a3f92 100%);
             }
 
             /* 반응형 */
@@ -527,12 +494,8 @@
                     grid-template-columns: 1fr;
                 }
 
-                .scroll-to-top {
-                    bottom: 20px;
-                    right: 20px;
-                    width: 45px;
-                    height: 45px;
-                    font-size: 1.3em;
+                .restaurant-scroll-container {
+                    max-height: 400px;
                 }
             }
         </style>
@@ -670,41 +633,41 @@
                         <span class="card-title">추천 메뉴 주변 식당</span>
                         <span class="card-icon">🗺️</span>
                     </div>
-                    <div id="restaurantInfo">
-                        <div class="location-status">
-                            <p style="color: #999;">메뉴를 먼저 추천받아주세요!</p>
+
+                    <!-- 스크롤 가능한 컨테이너 -->
+                    <div class="restaurant-scroll-container">
+                        <div id="restaurantInfo">
+                            <div class="location-status">
+                                <p style="color: #999;">메뉴를 먼저 추천받아주세요!</p>
+                            </div>
+                        </div>
+
+                        <!-- 식당 리스트 -->
+                        <div id="restaurantList" style="display: none; margin: 20px 0;">
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                                <!-- JavaScript로 채워질 예정 -->
+                            </div>
+                        </div>
+
+                        <div id="mapContainer" style="display: none;">
+                            <div class="map-banner">
+                                <div class="map-banner-title">🗺️ 지도에서 위치 확인하기</div>
+                                <div class="map-banner-subtitle">빨간색 마커를 클릭하면 상세 정보를 볼 수 있어요!</div>
+                            </div>
+                            <iframe
+                                id="mapFrame"
+                                width="100%"
+                                height="500"
+                                style="border:0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
+                                loading="lazy"></iframe>
                         </div>
                     </div>
 
-                    <!-- 식당 리스트 -->
-                    <div id="restaurantList" style="display: none; margin: 20px 0;">
-                        <div
-                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
-                            <!-- JavaScript로 채워질 예정 -->
-                        </div>
-                    </div>
-
-                    <div id="mapContainer" style="display: none;">
-                        <div class="map-banner">
-                            <div class="map-banner-title">🗺️ 지도에서 위치 확인하기</div>
-                            <div class="map-banner-subtitle">빨간색 마커를 클릭하면 상세 정보를 볼 수 있어요!</div>
-                        </div>
-                        <iframe
-                            id="mapFrame"
-                            width="100%"
-                            height="500"
-                            style="border:0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
-                            loading="lazy"></iframe>
-                    </div>
                     <button class="location-btn" id="searchRestaurantBtn" style="display: none;">🔍 주변 식당 다시 검색</button>
                 </div>
             </div>
         </div>
-
-        <!-- 맨 위로 버튼 -->
-        <button class="scroll-to-top" id="scrollToTopBtn" title="맨 위로">
-            ⬆️
-        </button>
 
         <script>
             const menus = {
@@ -1170,27 +1133,6 @@
                     };
                 });
             }
-            
-            // 맨 위로 버튼 기능
-            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
-            const mainContent = document.querySelector('.main-content');
-            
-            // 스크롤 이벤트 감지
-            mainContent.addEventListener('scroll', () => {
-                if (mainContent.scrollTop > 300) {
-                    scrollToTopBtn.classList.add('visible');
-                } else {
-                    scrollToTopBtn.classList.remove('visible');
-                }
-            });
-            
-            // 맨 위로 버튼 클릭
-            scrollToTopBtn.addEventListener('click', () => {
-                mainContent.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
         </script>
     </body>
 </html>
