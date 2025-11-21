@@ -28,6 +28,27 @@
                 color: white;
                 padding: 30px 20px;
                 box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            /* 사이드바 스크롤바 스타일링 */
+            .sidebar::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .sidebar::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+            }
+
+            .sidebar::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 10px;
+            }
+
+            .sidebar::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.5);
             }
 
             .logo {
@@ -64,6 +85,33 @@
             .main-content {
                 margin-left: 250px;
                 padding: 30px;
+                height: 100vh;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            /* 메인 컨텐츠 스크롤바 스타일링 */
+            .main-content::-webkit-scrollbar {
+                width: 10px;
+            }
+
+            .main-content::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+            }
+
+            .main-content::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+                border-radius: 10px;
+            }
+
+            .main-content::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(180deg, #5a6fd8 0%, #6a3f92 100%);
+            }
+
+            /* 부드러운 스크롤 */
+            html {
+                scroll-behavior: smooth;
             }
 
             .header {
@@ -417,6 +465,40 @@
                 font-size: 0.95em;
             }
 
+            /* 맨 위로 버튼 */
+            .scroll-to-top {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                width: 50px;
+                height: 50px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                font-size: 1.5em;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                z-index: 1000;
+            }
+
+            .scroll-to-top.visible {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .scroll-to-top:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            }
+
+            .scroll-to-top:active {
+                transform: translateY(-2px);
+            }
+
             /* 반응형 */
             @media (max-width: 768px) {
                 .sidebar {
@@ -443,6 +525,14 @@
 
                 .dashboard-grid {
                     grid-template-columns: 1fr;
+                }
+
+                .scroll-to-top {
+                    bottom: 20px;
+                    right: 20px;
+                    width: 45px;
+                    height: 45px;
+                    font-size: 1.3em;
                 }
             }
         </style>
@@ -610,6 +700,11 @@
                 </div>
             </div>
         </div>
+
+        <!-- 맨 위로 버튼 -->
+        <button class="scroll-to-top" id="scrollToTopBtn" title="맨 위로">
+            ⬆️
+        </button>
 
         <script>
             const menus = {
@@ -1075,6 +1170,27 @@
                     };
                 });
             }
+            
+            // 맨 위로 버튼 기능
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            const mainContent = document.querySelector('.main-content');
+            
+            // 스크롤 이벤트 감지
+            mainContent.addEventListener('scroll', () => {
+                if (mainContent.scrollTop > 300) {
+                    scrollToTopBtn.classList.add('visible');
+                } else {
+                    scrollToTopBtn.classList.remove('visible');
+                }
+            });
+            
+            // 맨 위로 버튼 클릭
+            scrollToTopBtn.addEventListener('click', () => {
+                mainContent.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
         </script>
     </body>
 </html>
