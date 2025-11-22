@@ -4,6 +4,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>점심메뉴 추천 대시보드</title>
+        <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&libraries=places&language=ko"></script>
         <style>
             * {
                 margin: 0;
@@ -707,14 +709,11 @@
                     </div>
                     <div class="map-banner">
                         <div class="map-banner-title">🗺️ 추천 메뉴 주변 식당 위치</div>
-                        <div class="map-banner-subtitle">빨간색 마커를 클릭하면 상세 정보를 볼 수 있어요!</div>
+                        <div class="map-banner-subtitle">마커를 클릭하면 식당 정보를 볼 수 있어요!</div>
                     </div>
-                    <iframe
-                        id="mapFrame"
-                        width="100%"
-                        height="450"
-                        style="border:0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
-                        loading="lazy"></iframe>
+                    <div
+                        id="map"
+                        style="width: 100%; height: 450px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"></div>
                 </div>
             </div>
         </div>
@@ -834,6 +833,9 @@
             let lastRecommendedMenu = null;
             let currentDistanceFilter = 1; // 기본 1km
             let allRestaurants = []; // 모든 식당 데이터 저장
+            let map = null; // Google Map 객체
+            let service = null; // Places Service 객체
+            let markers = []; // 마커 배열
 
             // 날짜 표시
             const today = new Date();
@@ -1073,7 +1075,6 @@
             const restaurantInfo = document.getElementById('restaurantInfo');
             const restaurantList = document.getElementById('restaurantList');
             const mapSection = document.getElementById('mapSection');
-            const mapFrame = document.getElementById('mapFrame');
             const searchRestaurantBtn = document.getElementById('searchRestaurantBtn');
             const distanceFilter = document.getElementById('distanceFilter');
 
@@ -1129,85 +1130,174 @@
                 </div>
             `;
 
-                // Google Places API로 실제 식당 검색
-                fetchRealRestaurants(menu);
-
-                // Google Maps 표시
-                const searchQuery = encodeURIComponent(`${menu.name} 맛집`);
-                const mapsUrl = `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${searchQuery}&center=${userLocation.lat},${userLocation.lon}&zoom=15`;
-
-                mapFrame.src = mapsUrl;
+                // 지도 섹션 표시
                 mapSection.style.display = 'block';
                 searchRestaurantBtn.style.display = 'block';
                 distanceFilter.style.display = 'block';
+                
+                // Google Maps 초기화 및 식당 검색
+                initializeMap(menu);
             }
             
-            async function fetchRealRestaurants(menu) {
-                try {
-                    // Google Places API Nearby Search 사용
-                    const apiKey = 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8';
-                    const radius = 10000; // 10km 반경
-                    const keyword = encodeURIComponent(menu.name);
-                    
-                    // CORS 프록시 사용 (실제 환경에서는 백엔드에서 처리해야 함)
-                    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${userLocation.lat},${userLocation.lon}&radius=${radius}&keyword=${keyword}&language=ko&key=${apiKey}`;
-                    
-                    // 프록시를 통한 요청
-                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-                    
-                    const response = await fetch(proxyUrl);
-                    const data = await response.json();
-                    
-                    if (data.results && data.results.length > 0) {
-                        // 실제 API 데이터를 allRestaurants에 저장
-                        allRestaurants = data.results.slice(0, 12).map(place => {
-                            // 거리 계산 (Haversine formula)
-                            const R = 6371; // 지구 반지름 (km)
-                            const dLat = (place.geometry.location.lat - userLocation.lat) * Math.PI / 180;
-                            const dLon = (place.geometry.location.lng - userLocation.lon) * Math.PI / 180;
-                            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                                    Math.cos(userLocation.lat * Math.PI / 180) * Math.cos(place.geometry.location.lat * Math.PI / 180) *
-                                    Math.sin(dLon/2) * Math.sin(dLon/2);
-                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                            const distanceKm = R * c;
-                            const distanceMeters = Math.round(distanceKm * 1000);
+            function initializeMap(menu) {
+                // 지도 생성
+                const mapDiv = document.getElementById('map');
+                const center = { lat: userLocation.lat, lng: userLocation.lon };
+                
+                map = new google.maps.Map(mapDiv, {
+                    center: center,
+                    zoom: 15
+                });
+                
+                // 사용자 위치 마커 (파란색)
+                new google.maps.Marker({
+                    position: center,
+                    map: map,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 10,
+                        fillColor: '#4285F4',
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2
+                    },
+                    title: '내 위치'
+                });
+                
+                // Places Service 생성
+                service = new google.maps.places.PlacesService(map);
+                
+                // 주변 식당 검색
+                const request = {
+                    location: center,
+                    radius: 10000, // 10km
+                    keyword: menu.name,
+                    language: 'ko'
+                };
+                
+                service.nearbySearch(request, (results, status) => {
+                    if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                        // 기존 마커 제거
+                        markers.forEach(marker => marker.setMap(null));
+                        markers = [];
+                        
+                        // 결과를 allRestaurants에 저장
+                        allRestaurants = results.map((place, index) => {
+                            // 거리 계산
+                            const distance = calculateDistance(
+                                userLocation.lat,
+                                userLocation.lon,
+                                place.geometry.location.lat(),
+                                place.geometry.location.lng()
+                            );
+                            
+                            // 마커 생성 (빨간색)
+                            const marker = new google.maps.Marker({
+                                position: place.geometry.location,
+                                map: map,
+                                title: place.name,
+                                icon: {
+                                    url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                                }
+                            });
+                            
+                            // 정보창 생성
+                            const infowindow = new google.maps.InfoWindow({
+                                content: `
+                                    <div style="padding: 10px;">
+                                        <h3 style="margin: 0 0 5px 0; font-size: 16px;">${place.name}</h3>
+                                        <p style="margin: 5px 0; color: #666; font-size: 14px;">
+                                            ⭐ ${place.rating || 'N/A'} 
+                                            ${place.user_ratings_total ? `(${place.user_ratings_total}개 리뷰)` : ''}
+                                        </p>
+                                        <p style="margin: 5px 0; color: #666; font-size: 14px;">
+                                            📍 ${distance.distanceKm}km
+                                        </p>
+                                    </div>
+                                `
+                            });
+                            
+                            // 마커 클릭 이벤트
+                            marker.addListener('click', () => {
+                                // 다른 정보창 닫기
+                                markers.forEach(m => {
+                                    if (m.infowindow) {
+                                        m.infowindow.close();
+                                    }
+                                });
+                                infowindow.open(map, marker);
+                            });
+                            
+                            marker.infowindow = infowindow;
+                            markers.push(marker);
                             
                             return {
                                 name: place.name,
                                 rating: place.rating || 4.0,
                                 reviews: place.user_ratings_total || 0,
-                                distance: distanceMeters >= 1000 ? `${(distanceMeters/1000).toFixed(1)}km` : `${distanceMeters}m`,
-                                distanceKm: parseFloat(distanceKm.toFixed(1)),
-                                tags: place.types ? place.types.slice(0, 3).map(t => {
-                                    const typeMap = {
-                                        'restaurant': '음식점',
-                                        'food': '식당',
-                                        'cafe': '카페',
-                                        'meal_takeaway': '포장가능',
-                                        'meal_delivery': '배달가능',
-                                        'bar': '주점'
-                                    };
-                                    return typeMap[t] || '맛집';
-                                }) : ['맛집', '추천', '인기']
+                                distance: distance.distanceKm >= 1 ? `${distance.distanceKm}km` : `${distance.distanceM}m`,
+                                distanceKm: distance.distanceKm,
+                                tags: getTagsFromTypes(place.types),
+                                placeId: place.place_id
                             };
                         }).sort((a, b) => a.distanceKm - b.distanceKm);
                         
+                        // 리스트 표시
                         restaurantList.style.display = 'block';
                         filterRestaurantsByDistance();
                     } else {
-                        // API 실패 시 샘플 데이터 사용
-                        console.log('Places API 응답 없음, 샘플 데이터 사용');
-                        allRestaurants = generateSampleRestaurants(menu);
-                        restaurantList.style.display = 'block';
-                        filterRestaurantsByDistance();
+                        console.error('Places API 오류:', status);
+                        restaurantInfo.innerHTML += `
+                            <div class="location-status" style="margin-top: 10px;">
+                                <p style="color: #e67e22;">⚠️ 주변 식당을 찾을 수 없습니다. 다시 시도해주세요.</p>
+                            </div>
+                        `;
                     }
-                } catch (error) {
-                    console.error('Places API 오류:', error);
-                    // 에러 발생 시 샘플 데이터 사용
-                    allRestaurants = generateSampleRestaurants(menu);
-                    restaurantList.style.display = 'block';
-                    filterRestaurantsByDistance();
+                });
+            }
+            
+            function calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371; // 지구 반지름 (km)
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const distanceKm = parseFloat((R * c).toFixed(1));
+                const distanceM = Math.round(distanceKm * 1000);
+                
+                return { distanceKm, distanceM };
+            }
+            
+            function getTagsFromTypes(types) {
+                if (!types) return ['맛집', '추천', '인기'];
+                
+                const typeMap = {
+                    'restaurant': '음식점',
+                    'food': '식당',
+                    'cafe': '카페',
+                    'meal_takeaway': '포장가능',
+                    'meal_delivery': '배달가능',
+                    'bar': '주점',
+                    'parking': '주차가능'
+                };
+                
+                const tags = types
+                    .filter(t => typeMap[t])
+                    .map(t => typeMap[t])
+                    .slice(0, 3);
+                
+                // 태그가 부족하면 기본 태그 추가
+                while (tags.length < 3) {
+                    const defaults = ['맛집', '추천', '인기', '깔끔함', '친절함'];
+                    const newTag = defaults.find(d => !tags.includes(d));
+                    if (newTag) tags.push(newTag);
+                    else break;
                 }
+                
+                return tags;
             }
 
             function displayRestaurantList(menu) {
