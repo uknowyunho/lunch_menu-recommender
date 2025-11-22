@@ -440,10 +440,16 @@
 
             /* 식당 섹션 스크롤 컨테이너 */
             .restaurant-scroll-container {
-                max-height: 600px;
+                max-height: 320px;
                 overflow-y: auto;
                 overflow-x: hidden;
                 padding-right: 10px;
+                scroll-snap-type: y mandatory;
+            }
+
+            /* 식당 카드 스크롤 스냅 */
+            .restaurant-card {
+                scroll-snap-align: start;
             }
 
             /* 식당 섹션 스크롤바 스타일링 */
@@ -464,6 +470,13 @@
 
             .restaurant-scroll-container::-webkit-scrollbar-thumb:hover {
                 background: linear-gradient(180deg, #5a6fd8 0%, #6a3f92 100%);
+            }
+
+            /* 식당 리스트 그리드 - 1열로 변경 */
+            .restaurant-list-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
             }
 
             /* 반응형 */
@@ -495,7 +508,11 @@
                 }
 
                 .restaurant-scroll-container {
-                    max-height: 400px;
+                    max-height: 280px;
+                }
+
+                .restaurant-list-grid {
+                    gap: 12px;
                 }
             }
         </style>
@@ -644,8 +661,7 @@
 
                         <!-- 식당 리스트 -->
                         <div id="restaurantList" style="display: none; margin: 20px 0;">
-                            <div
-                                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                            <div class="restaurant-list-grid">
                                 <!-- JavaScript로 채워질 예정 -->
                             </div>
                         </div>
@@ -1065,12 +1081,12 @@
                 // 샘플 식당 데이터 생성 (실제로는 API에서 받아와야 함)
                 displayRestaurantList(menu);
 
-                // Google Maps 표시
+                // Google Maps 표시 - 스크롤 영역 밖으로 이동
                 const searchQuery = encodeURIComponent(`${menu.name} 맛집`);
                 const mapsUrl = `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${searchQuery}&center=${userLocation.lat},${userLocation.lon}&zoom=15`;
 
                 mapFrame.src = mapsUrl;
-                mapContainer.style.display = 'block';
+                // mapContainer.style.display = 'block'; // 지도 숨김
                 searchRestaurantBtn.style.display = 'block';
                 restaurantList.style.display = 'block';
             }
