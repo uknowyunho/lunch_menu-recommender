@@ -473,6 +473,30 @@
                 gap: 15px;
             }
 
+            /* 거리 필터 버튼 */
+            .distance-btn {
+                padding: 10px 20px;
+                border: 2px solid #667eea;
+                background: white;
+                color: #667eea;
+                border-radius: 25px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 0.95em;
+                font-weight: bold;
+            }
+
+            .distance-btn:hover {
+                background: #f0f3ff;
+                transform: translateY(-2px);
+            }
+
+            .distance-btn.active {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border-color: #667eea;
+            }
+
             /* 반응형 */
             @media (max-width: 768px) {
                 .sidebar {
@@ -645,6 +669,15 @@
                         <span class="card-icon">🗺️</span>
                     </div>
 
+                    <!-- 거리 필터 버튼 -->
+                    <div id="distanceFilter" style="display: none; margin-bottom: 20px;">
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button class="distance-btn active" data-distance="1">1km 이내</button>
+                            <button class="distance-btn" data-distance="5">5km 이내</button>
+                            <button class="distance-btn" data-distance="10">10km 이내</button>
+                        </div>
+                    </div>
+
                     <!-- 스크롤 가능한 컨테이너 -->
                     <div class="restaurant-scroll-container">
                         <div id="restaurantInfo">
@@ -661,21 +694,27 @@
                         </div>
                     </div>
 
-                    <!-- 지도 (스크롤 영역 밖, 하단에 고정) -->
-                    <div id="mapContainer" style="display: none; margin-top: 20px;">
-                        <div class="map-banner">
-                            <div class="map-banner-title">🗺️ 지도에서 위치 확인하기</div>
-                            <div class="map-banner-subtitle">빨간색 마커를 클릭하면 상세 정보를 볼 수 있어요!</div>
-                        </div>
-                        <iframe
-                            id="mapFrame"
-                            width="100%"
-                            height="350"
-                            style="border:0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
-                            loading="lazy"></iframe>
-                    </div>
-
                     <button class="location-btn" id="searchRestaurantBtn" style="display: none;">🔍 주변 식당 다시 검색</button>
+                </div>
+            </div>
+
+            <!-- 지도 섹션 (하단 전체 너비) -->
+            <div id="mapSection" style="display: none; margin-top: 30px;">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div class="card-header">
+                        <span class="card-title">지도에서 위치 확인하기</span>
+                        <span class="card-icon">🗺️</span>
+                    </div>
+                    <div class="map-banner">
+                        <div class="map-banner-title">🗺️ 추천 메뉴 주변 식당 위치</div>
+                        <div class="map-banner-subtitle">빨간색 마커를 클릭하면 상세 정보를 볼 수 있어요!</div>
+                    </div>
+                    <iframe
+                        id="mapFrame"
+                        width="100%"
+                        height="450"
+                        style="border:0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
+                        loading="lazy"></iframe>
                 </div>
             </div>
         </div>
@@ -793,6 +832,8 @@
             let recentMenusList = [];
             let userLocation = null;
             let lastRecommendedMenu = null;
+            let currentDistanceFilter = 1; // 기본 1km
+            let allRestaurants = []; // 모든 식당 데이터 저장
 
             // 날짜 표시
             const today = new Date();
@@ -1031,14 +1072,29 @@
             // 주변 식당 검색 기능
             const restaurantInfo = document.getElementById('restaurantInfo');
             const restaurantList = document.getElementById('restaurantList');
-            const mapContainer = document.getElementById('mapContainer');
+            const mapSection = document.getElementById('mapSection');
             const mapFrame = document.getElementById('mapFrame');
             const searchRestaurantBtn = document.getElementById('searchRestaurantBtn');
+            const distanceFilter = document.getElementById('distanceFilter');
 
             searchRestaurantBtn.addEventListener('click', () => {
                 if (lastRecommendedMenu) {
                     searchNearbyRestaurants(lastRecommendedMenu);
                 }
+            });
+            
+            // 거리 필터 버튼 이벤트
+            document.querySelectorAll('.distance-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 모든 버튼 비활성화
+                    document.querySelectorAll('.distance-btn').forEach(b => b.classList.remove('active'));
+                    // 클릭한 버튼 활성화
+                    btn.classList.add('active');
+                    // 거리 필터 업데이트
+                    currentDistanceFilter = parseFloat(btn.dataset.distance);
+                    // 필터링된 식당 표시
+                    filterRestaurantsByDistance();
+                });
             });
 
             function searchNearbyRestaurants(menu) {
@@ -1073,7 +1129,8 @@
                 </div>
             `;
 
-                // 샘플 식당 데이터 생성 (실제로는 API에서 받아와야 함)
+                // 샘플 식당 데이터 생성
+                allRestaurants = generateSampleRestaurants(menu);
                 displayRestaurantList(menu);
 
                 // Google Maps 표시
@@ -1081,20 +1138,39 @@
                 const mapsUrl = `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${searchQuery}&center=${userLocation.lat},${userLocation.lon}&zoom=15`;
 
                 mapFrame.src = mapsUrl;
-                mapContainer.style.display = 'block';
+                mapSection.style.display = 'block';
                 searchRestaurantBtn.style.display = 'block';
                 restaurantList.style.display = 'block';
+                distanceFilter.style.display = 'block';
             }
 
             function displayRestaurantList(menu) {
-                // 실제 API 연동 시 여기를 교체
-                const sampleRestaurants = generateSampleRestaurants(menu);
-
+                filterRestaurantsByDistance();
+            }
+            
+            function filterRestaurantsByDistance() {
+                // 거리 필터링
+                const filteredRestaurants = allRestaurants.filter(restaurant => {
+                    return restaurant.distanceKm <= currentDistanceFilter;
+                });
+                
                 const listContainer = restaurantList.querySelector('div');
-                listContainer.innerHTML = sampleRestaurants.map(restaurant => `
+                
+                if (filteredRestaurants.length === 0) {
+                    listContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #999;">
+                            <div style="font-size: 3em; margin-bottom: 10px;">🔍</div>
+                            <div style="font-size: 1.1em;">${currentDistanceFilter}km 이내에 식당이 없습니다.</div>
+                            <div style="font-size: 0.9em; margin-top: 5px;">더 넓은 범위로 검색해보세요!</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                listContainer.innerHTML = filteredRestaurants.map(restaurant => `
                 <div class="restaurant-card" onclick="window.open('https://www.google.com/maps/search/${encodeURIComponent(restaurant.name)}/@${userLocation.lat},${userLocation.lon},15z', '_blank')">
                     <div class="restaurant-header">
-                        <div class="restaurant-icon">${menu.emoji}</div>
+                        <div class="restaurant-icon">${lastRecommendedMenu.emoji}</div>
                         <div class="restaurant-info">
                             <div class="restaurant-name">${restaurant.name}</div>
                             <div class="restaurant-rating">
@@ -1104,7 +1180,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="restaurant-distance">📍 ${restaurant.distance}</div>
+                    <div class="restaurant-distance">📍 ${restaurant.distance} (${restaurant.distanceKm}km)</div>
                     <div class="restaurant-tags">
                         ${restaurant.tags.map(tag => `<span class="restaurant-tag">${tag}</span>`).join('')}
                     </div>
@@ -1123,10 +1199,14 @@
                     '하우스', '본점', '분식', '골목', '레스토랑'
                 ];
 
-                return Array(6).fill(null).map((_, i) => {
+                return Array(12).fill(null).map((_, i) => {
                     const randomBase = baseNames[Math.floor(Math.random() * baseNames.length)];
                     const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-                    const distance = (100 + Math.random() * 900).toFixed(0);
+                    
+                    // 거리를 0.1km ~ 12km 범위로 생성
+                    const distanceMeters = Math.floor(100 + Math.random() * 11900);
+                    const distanceKm = (distanceMeters / 1000).toFixed(1);
+                    
                     const rating = (4.0 + Math.random() * 1.0).toFixed(1);
                     const reviews = Math.floor(50 + Math.random() * 950);
 
@@ -1139,10 +1219,11 @@
                         name: `${randomBase} ${menu.name} ${randomSuffix}`,
                         rating: parseFloat(rating),
                         reviews: reviews,
-                        distance: `${distance}m`,
+                        distance: `${distanceMeters}m`,
+                        distanceKm: parseFloat(distanceKm),
                         tags: selectedTags
                     };
-                });
+                }).sort((a, b) => a.distanceKm - b.distanceKm); // 거리순 정렬
             }
         </script>
     </body>
