@@ -709,7 +709,7 @@
                         <span class="card-icon">🗺️</span>
                     </div>
                     <div class="map-banner">
-                        <div class="map-banner-title">🗺️ 추천 메뉴 주변 식당 위치</div>
+                        <div class="map-banner-title">🗺️ 추천 식당 위치</div>
                         <div class="map-banner-subtitle">마커를 클릭하면 식당 정보를 볼 수 있어요!</div>
                     </div>
                     <div
@@ -722,108 +722,35 @@
         <script>
             const menus = {
                 korean: [
-                    {
-                        name: '김치찌개',
-                        emoji: '🍲',
-                        category: '한식'
-                    }, {
-                        name: '된장찌개',
-                        emoji: '🥘',
-                        category: '한식'
-                    }, {
-                        name: '비빔밥',
-                        emoji: '🍚',
-                        category: '한식'
-                    }, {
-                        name: '불고기',
-                        emoji: '🥩',
-                        category: '한식'
-                    }, {
-                        name: '삼겹살',
-                        emoji: '🥓',
-                        category: '한식'
-                    }, {
-                        name: '냉면',
-                        emoji: '🍜',
-                        category: '한식'
-                    }, {
-                        name: '칼국수',
-                        emoji: '🍝',
-                        category: '한식'
-                    }, {
-                        name: '김밥',
-                        emoji: '🍱',
-                        category: '한식'
-                    }
+                    { name: '김치찌개', emoji: '🍲', category: '한식' },
+                    { name: '된장찌개', emoji: '🥘', category: '한식' },
+                    { name: '비빔밥', emoji: '🍚', category: '한식' },
+                    { name: '불고기', emoji: '🥩', category: '한식' },
+                    { name: '삼겹살', emoji: '🥓', category: '한식' },
+                    { name: '냉면', emoji: '🍜', category: '한식' },
+                    { name: '칼국수', emoji: '🍝', category: '한식' },
+                    { name: '김밥', emoji: '🍱', category: '한식' }
                 ],
                 chinese: [
-                    {
-                        name: '짜장면',
-                        emoji: '🍜',
-                        category: '중식'
-                    }, {
-                        name: '짬뽕',
-                        emoji: '🍲',
-                        category: '중식'
-                    }, {
-                        name: '탕수육',
-                        emoji: '🍖',
-                        category: '중식'
-                    }, {
-                        name: '마라탕',
-                        emoji: '🌶️',
-                        category: '중식'
-                    }, {
-                        name: '볶음밥',
-                        emoji: '🍚',
-                        category: '중식'
-                    }
+                    { name: '짜장면', emoji: '🍜', category: '중식' },
+                    { name: '짬뽕', emoji: '🍲', category: '중식' },
+                    { name: '탕수육', emoji: '🍖', category: '중식' },
+                    { name: '마라탕', emoji: '🌶️', category: '중식' },
+                    { name: '볶음밥', emoji: '🍚', category: '중식' }
                 ],
                 japanese: [
-                    {
-                        name: '초밥',
-                        emoji: '🍣',
-                        category: '일식'
-                    }, {
-                        name: '라멘',
-                        emoji: '🍜',
-                        category: '일식'
-                    }, {
-                        name: '돈까스',
-                        emoji: '🍛',
-                        category: '일식'
-                    }, {
-                        name: '우동',
-                        emoji: '🍲',
-                        category: '일식'
-                    }, {
-                        name: '규동',
-                        emoji: '🍱',
-                        category: '일식'
-                    }
+                    { name: '초밥', emoji: '🍣', category: '일식' },
+                    { name: '라멘', emoji: '🍜', category: '일식' },
+                    { name: '돈까스', emoji: '🍛', category: '일식' },
+                    { name: '우동', emoji: '🍲', category: '일식' },
+                    { name: '규동', emoji: '🍱', category: '일식' }
                 ],
                 western: [
-                    {
-                        name: '파스타',
-                        emoji: '🍝',
-                        category: '양식'
-                    }, {
-                        name: '피자',
-                        emoji: '🍕',
-                        category: '양식'
-                    }, {
-                        name: '스테이크',
-                        emoji: '🥩',
-                        category: '양식'
-                    }, {
-                        name: '햄버거',
-                        emoji: '🍔',
-                        category: '양식'
-                    }, {
-                        name: '샐러드',
-                        emoji: '🥗',
-                        category: '양식'
-                    }
+                    { name: '파스타', emoji: '🍝', category: '양식' },
+                    { name: '피자', emoji: '🍕', category: '양식' },
+                    { name: '스테이크', emoji: '🥩', category: '양식' },
+                    { name: '햄버거', emoji: '🍔', category: '양식' },
+                    { name: '샐러드', emoji: '🥗', category: '양식' }
                 ]
             };
 
@@ -832,50 +759,33 @@
             let recentMenusList = [];
             let userLocation = null;
             let lastRecommendedMenu = null;
-            let currentDistanceFilter = 1; // 기본 1km
-            let allRestaurants = []; // 모든 식당 데이터 저장
-            let map = null; // Kakao Map 객체
-            let markers = []; // 마커 배열
-            let infowindow = null; // 정보창 객체
+            let currentDistanceFilter = 1;
+            let allRestaurants = [];
+            let map = null;
+            let markers = [];
+            let ps = null;
 
             // 날짜 표시
             const today = new Date();
             const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
-            document
-                .getElementById('currentDate')
-                .textContent = dateStr;
+            document.getElementById('currentDate').textContent = dateStr;
 
             // 전체 메뉴 수 계산
-            const totalMenuCount = Object
-                .values(menus)
-                .flat()
-                .length;
-            document
-                .getElementById('totalMenus')
-                .textContent = totalMenuCount;
+            const totalMenuCount = Object.values(menus).flat().length;
+            document.getElementById('totalMenus').textContent = totalMenuCount;
 
             // 카테고리별 메뉴 수 표시
-            document
-                .getElementById('koreanCount')
-                .textContent = menus.korean.length + '개';
-            document
-                .getElementById('chineseCount')
-                .textContent = menus.chinese.length + '개';
-            document
-                .getElementById('japaneseCount')
-                .textContent = menus.japanese.length + '개';
-            document
-                .getElementById('westernCount')
-                .textContent = menus.western.length + '개';
+            document.getElementById('koreanCount').textContent = menus.korean.length + '개';
+            document.getElementById('chineseCount').textContent = menus.chinese.length + '개';
+            document.getElementById('japaneseCount').textContent = menus.japanese.length + '개';
+            document.getElementById('westernCount').textContent = menus.western.length + '개';
 
             // 필터 버튼
             const filterBtns = document.querySelectorAll('.filter-btn');
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     filterBtns.forEach(b => b.classList.remove('active'));
-                    btn
-                        .classList
-                        .add('active');
+                    btn.classList.add('active');
                     currentFilter = btn.dataset.filter;
                 });
             });
@@ -897,16 +807,10 @@
                         clearInterval(interval);
                         recommendBtn.disabled = false;
 
-                        // 통계 업데이트
                         todayCount++;
-                        document
-                            .getElementById('todayCount')
-                            .textContent = todayCount;
+                        document.getElementById('todayCount').textContent = todayCount;
 
-                        // 최근 메뉴에 추가
                         addToRecentMenus(randomMenu);
-
-                        // 마지막 추천 메뉴 저장 및 주변 식당 검색
                         lastRecommendedMenu = randomMenu;
                         searchNearbyRestaurants(randomMenu);
                     }
@@ -915,15 +819,11 @@
 
             function getRandomMenu() {
                 let menuList = [];
-
                 if (currentFilter === 'all') {
-                    menuList = Object
-                        .values(menus)
-                        .flat();
+                    menuList = Object.values(menus).flat();
                 } else {
                     menuList = menus[currentFilter];
                 }
-
                 return menuList[Math.floor(Math.random() * menuList.length)];
             }
 
@@ -943,24 +843,18 @@
 
                 const recentMenusEl = document.getElementById('recentMenus');
                 recentMenusEl.innerHTML = recentMenusList
-                    .map(
-                        m => `<li class="menu-list-item">
+                    .map(m => `<li class="menu-list-item">
                     <span>${m.emoji} ${m.name}</span>
                     <span>${m.category}</span>
-                </li>`
-                    )
+                </li>`)
                     .join('');
             }
 
-            // GPS 위치 정보 기능
-            const locationStatus = document.getElementById('locationStatus');
+            // GPS 위치 정보
             const locationInfo = document.getElementById('locationInfo');
             const getLocationBtn = document.getElementById('getLocationBtn');
 
-            // 페이지 로드 시 자동으로 위치 가져오기
             getLocation();
-
-            // 버튼 클릭 시 위치 다시 가져오기
             getLocationBtn.addEventListener('click', getLocation);
 
             function getLocation() {
@@ -977,37 +871,29 @@
                 </div>
             `;
 
-                navigator
-                    .geolocation
-                    .getCurrentPosition(showPosition, showError, {
-                        enableHighAccuracy: false,
-                        timeout: 15000,
-                        maximumAge: 60000
-                    });
+                navigator.geolocation.getCurrentPosition(showPosition, showError, {
+                    enableHighAccuracy: false,
+                    timeout: 15000,
+                    maximumAge: 60000
+                });
             }
 
             function showPosition(position) {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
 
-                userLocation = {
-                    lat,
-                    lon
-                };
+                userLocation = { lat, lon };
 
                 locationInfo.innerHTML = `
                 <div class="location-info">
                     <div class="location-item">
                         <span class="location-label">🕐 확인 시간</span>
-                        <span class="location-value">${new Date(
-                    position.timestamp
-                ).toLocaleTimeString('ko-KR')}</span>
+                        <span class="location-value">${new Date(position.timestamp).toLocaleTimeString('ko-KR')}</span>
                     </div>
                 </div>
             `;
 
                 getLocationBtn.disabled = false;
-
                 getAddress(lat, lon);
 
                 if (lastRecommendedMenu) {
@@ -1017,7 +903,6 @@
 
             function showError(error) {
                 let errorMessage = '';
-
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
                         errorMessage = '위치 정보 접근이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요.';
@@ -1032,12 +917,7 @@
                         errorMessage = '알 수 없는 오류가 발생했습니다.';
                 }
 
-                locationInfo.innerHTML = `
-                <div class="error-message">
-                    ⚠️ ${errorMessage}
-                </div>
-            `;
-
+                locationInfo.innerHTML = `<div class="error-message">⚠️ ${errorMessage}</div>`;
                 getLocationBtn.disabled = false;
             }
 
@@ -1045,11 +925,7 @@
                 try {
                     const response = await fetch(
                         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
-                        {
-                            headers: {
-                                'Accept-Language': 'ko'
-                            }
-                        }
+                        { headers: { 'Accept-Language': 'ko' } }
                     );
 
                     const data = await response.json();
@@ -1072,7 +948,7 @@
                 }
             }
 
-            // 주변 식당 검색 기능
+            // 주변 식당 검색
             const restaurantInfo = document.getElementById('restaurantInfo');
             const restaurantList = document.getElementById('restaurantList');
             const mapSection = document.getElementById('mapSection');
@@ -1084,17 +960,12 @@
                     searchNearbyRestaurants(lastRecommendedMenu);
                 }
             });
-            
-            // 거리 필터 버튼 이벤트
+
             document.querySelectorAll('.distance-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    // 모든 버튼 비활성화
                     document.querySelectorAll('.distance-btn').forEach(b => b.classList.remove('active'));
-                    // 클릭한 버튼 활성화
                     btn.classList.add('active');
-                    // 거리 필터 업데이트
                     currentDistanceFilter = parseFloat(btn.dataset.distance);
-                    // 필터링된 식당 표시
                     filterRestaurantsByDistance();
                 });
             });
@@ -1116,49 +987,70 @@
                 </div>
             `;
 
-                // 메뉴 정보 표시
-                restaurantInfo.innerHTML = `
-                <div class="location-info">
-                    <div class="location-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <span style="font-size: 3em;">${menu.emoji}</span>
-                            <div>
-                                <div style="font-weight: bold; font-size: 1.5em; margin-bottom: 5px;">${menu.name}</div>
-                                <div style="opacity: 0.9; font-size: 1em;">${menu.category} 맛집을 찾아드릴게요!</div>
+                setTimeout(() => {
+                    restaurantInfo.innerHTML = `
+                    <div class="location-info">
+                        <div class="location-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span style="font-size: 3em;">${menu.emoji}</span>
+                                <div>
+                                    <div style="font-weight: bold; font-size: 1.5em; margin-bottom: 5px;">${menu.name}</div>
+                                    <div style="opacity: 0.9; font-size: 1em;">${menu.category} 맛집을 찾아드릴게요!</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
 
-                // 지도 섹션 표시
-                mapSection.style.display = 'block';
-                searchRestaurantBtn.style.display = 'block';
-                distanceFilter.style.display = 'block';
-                
-                // Kakao 지도 초기화 및 식당 검색
-                initializeKakaoMap(menu);
+                    mapSection.style.display = 'block';
+                    searchRestaurantBtn.style.display = 'block';
+                    distanceFilter.style.display = 'block';
+
+                    // Kakao SDK 확인 후 초기화
+                    waitForKakao(() => {
+                        initializeKakaoMap(menu);
+                    });
+                }, 300);
             }
-            
+
+            function waitForKakao(callback) {
+                if (typeof kakao !== 'undefined' && kakao.maps) {
+                    callback();
+                } else {
+                    let attempts = 0;
+                    const checkKakao = setInterval(() => {
+                        attempts++;
+                        if (typeof kakao !== 'undefined' && kakao.maps) {
+                            clearInterval(checkKakao);
+                            callback();
+                        } else if (attempts > 50) {
+                            clearInterval(checkKakao);
+                            restaurantInfo.innerHTML += `
+                                <div class="location-status" style="margin-top: 10px;">
+                                    <p style="color: #e67e22;">⚠️ 지도 API 로딩 중입니다. 잠시만 기다려주세요...</p>
+                                </div>
+                            `;
+                        }
+                    }, 100);
+                }
+            }
+
             function initializeKakaoMap(menu) {
-                // 기존 마커 제거
                 markers.forEach(marker => marker.setMap(null));
                 markers = [];
-                
+
                 const mapContainer = document.getElementById('map');
                 const mapOption = {
                     center: new kakao.maps.LatLng(userLocation.lat, userLocation.lon),
-                    level: 5 // 확대 레벨
+                    level: 5
                 };
-                
-                // 지도 생성
+
                 if (!map) {
                     map = new kakao.maps.Map(mapContainer, mapOption);
                 } else {
                     map.setCenter(new kakao.maps.LatLng(userLocation.lat, userLocation.lon));
                 }
-                
-                // 사용자 위치 마커 (파란색)
+
                 const userMarkerPosition = new kakao.maps.LatLng(userLocation.lat, userLocation.lon);
                 const userMarker = new kakao.maps.Marker({
                     position: userMarkerPosition,
@@ -1169,59 +1061,48 @@
                 });
                 userMarker.setMap(map);
                 markers.push(userMarker);
-                
-                // 정보창 생성
-                infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
-                
-                // Kakao Local API로 식당 검색
+
                 searchPlaces(menu);
             }
-            
+
             function searchPlaces(menu) {
-                // Kakao Places 서비스 객체 생성
-                const ps = new kakao.maps.services.Places();
-                
-                // 키워드로 장소 검색
-                const keyword = menu.name;
+                ps = new kakao.maps.services.Places();
+
                 const options = {
                     location: new kakao.maps.LatLng(userLocation.lat, userLocation.lon),
-                    radius: 10000, // 10km
-                    category_group_code: 'FD6', // 음식점 카테고리
+                    radius: 10000,
+                    category_group_code: 'FD6',
                     sort: kakao.maps.services.SortBy.DISTANCE
                 };
-                
-                ps.keywordSearch(keyword, placesSearchCB, options);
+
+                ps.keywordSearch(menu.name, placesSearchCB, options);
             }
-            
-            function placesSearchCB(data, status, pagination) {
+
+            function placesSearchCB(data, status) {
                 if (status === kakao.maps.services.Status.OK) {
-                    // 검색 결과 처리
+                    const infowindow = new kakao.maps.InfoWindow({zIndex: 1});
+
                     allRestaurants = data.map(place => {
-                        // 거리 계산
                         const distance = calculateDistance(
                             userLocation.lat,
                             userLocation.lon,
                             parseFloat(place.y),
                             parseFloat(place.x)
                         );
-                        
-                        // 마커 생성 (빨간색)
+
                         const markerPosition = new kakao.maps.LatLng(place.y, place.x);
                         const marker = new kakao.maps.Marker({
                             position: markerPosition,
                             title: place.place_name
                         });
-                        
+
                         marker.setMap(map);
-                        
-                        // 마커 클릭 이벤트
+
                         kakao.maps.event.addListener(marker, 'click', function() {
                             const content = `
                                 <div style="padding: 10px; min-width: 200px;">
                                     <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold;">${place.place_name}</h3>
-                                    <p style="margin: 4px 0; color: #666; font-size: 14px;">
-                                        📍 ${distance.distanceKm}km
-                                    </p>
+                                    <p style="margin: 4px 0; color: #666; font-size: 14px;">📍 ${distance.distanceKm}km</p>
                                     ${place.category_name ? `<p style="margin: 4px 0; color: #666; font-size: 13px;">🍽️ ${place.category_name}</p>` : ''}
                                     ${place.phone ? `<p style="margin: 4px 0; color: #666; font-size: 13px;">📞 ${place.phone}</p>` : ''}
                                     ${place.road_address_name ? `<p style="margin: 4px 0; color: #999; font-size: 12px;">${place.road_address_name}</p>` : ''}
@@ -1230,10 +1111,9 @@
                             infowindow.setContent(content);
                             infowindow.open(map, marker);
                         });
-                        
+
                         markers.push(marker);
-                        
-                        // 태그 생성
+
                         const tags = [];
                         if (place.category_name) {
                             const categories = place.category_name.split(' > ');
@@ -1242,62 +1122,45 @@
                             }
                         }
                         if (place.phone) tags.push('전화가능');
-                        
+
                         while (tags.length < 3) {
-                            const defaults = ['맛집', '추천', '인기', '깔끔함'];
+                            const defaults = ['맛집', '추천', '인기'];
                             const newTag = defaults.find(d => !tags.includes(d));
                             if (newTag) tags.push(newTag);
                             else break;
                         }
-                        
+
                         return {
                             name: place.place_name,
-                            rating: 4.0 + Math.random() * 1.0, // Kakao API에는 평점 없음
+                            rating: 4.0 + Math.random() * 1.0,
                             reviews: Math.floor(50 + Math.random() * 450),
                             distance: distance.distanceKm >= 1 ? `${distance.distanceKm}km` : `${distance.distanceM}m`,
                             distanceKm: distance.distanceKm,
-                            tags: tags.slice(0, 3),
-                            phone: place.phone || '',
-                            address: place.road_address_name || place.address_name,
-                            category: place.category_name,
-                            placeUrl: place.place_url
+                            tags: tags.slice(0, 3)
                         };
                     }).sort((a, b) => a.distanceKm - b.distanceKm);
-                    
-                    // 리스트 표시
+
                     restaurantList.style.display = 'block';
                     filterRestaurantsByDistance();
-                    
-                    // 지도 범위 재설정 (모든 마커가 보이도록)
+
                     const bounds = new kakao.maps.LatLngBounds();
                     bounds.extend(new kakao.maps.LatLng(userLocation.lat, userLocation.lon));
-                    allRestaurants.forEach(restaurant => {
-                        const marker = markers.find(m => m.getTitle() === restaurant.name);
-                        if (marker) {
-                            bounds.extend(marker.getPosition());
-                        }
+                    markers.slice(1).forEach(marker => {
+                        bounds.extend(marker.getPosition());
                     });
                     map.setBounds(bounds);
-                    
-                    console.log(`${allRestaurants.length}개의 식당을 찾았습니다.`);
+
                 } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
                     restaurantInfo.innerHTML += `
                         <div class="location-status" style="margin-top: 10px;">
                             <p style="color: #e67e22;">⚠️ 주변에 "${lastRecommendedMenu.name}" 식당을 찾을 수 없습니다.</p>
                         </div>
                     `;
-                } else {
-                    console.error('Kakao Places API 오류:', status);
-                    restaurantInfo.innerHTML += `
-                        <div class="location-status" style="margin-top: 10px;">
-                            <p style="color: #e67e22;">⚠️ 식당 검색 중 오류가 발생했습니다.</p>
-                        </div>
-                    `;
                 }
             }
-            
+
             function calculateDistance(lat1, lon1, lat2, lon2) {
-                const R = 6371; // 지구 반지름 (km)
+                const R = 6371;
                 const dLat = (lat2 - lat1) * Math.PI / 180;
                 const dLon = (lon2 - lon1) * Math.PI / 180;
                 const a = 
@@ -1307,22 +1170,17 @@
                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                 const distanceKm = parseFloat((R * c).toFixed(1));
                 const distanceM = Math.round(distanceKm * 1000);
-                
+
                 return { distanceKm, distanceM };
             }
 
-            function displayRestaurantList(menu) {
-                filterRestaurantsByDistance();
-            }
-            
             function filterRestaurantsByDistance() {
-                // 거리 필터링
                 const filteredRestaurants = allRestaurants.filter(restaurant => {
                     return restaurant.distanceKm <= currentDistanceFilter;
                 });
-                
+
                 const listContainer = restaurantList.querySelector('div');
-                
+
                 if (filteredRestaurants.length === 0) {
                     listContainer.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #999;">
@@ -1333,180 +1191,26 @@
                     `;
                     return;
                 }
-                
+
                 listContainer.innerHTML = filteredRestaurants.map(restaurant => `
-                <div class="restaurant-card" onclick="window.open('https://www.google.com/maps/search/${encodeURIComponent(restaurant.name)}/@${userLocation.lat},${userLocation.lon},15z', '_blank')">
+                <div class="restaurant-card">
                     <div class="restaurant-header">
                         <div class="restaurant-icon">${lastRecommendedMenu.emoji}</div>
                         <div class="restaurant-info">
                             <div class="restaurant-name">${restaurant.name}</div>
                             <div class="restaurant-rating">
                                 ${'⭐'.repeat(Math.floor(restaurant.rating))}
-                                <span style="color: #333; font-weight: bold;">${restaurant.rating}</span>
+                                <span style="color: #333; font-weight: bold;">${restaurant.rating.toFixed(1)}</span>
                                 <span style="color: #999;">(${restaurant.reviews})</span>
                             </div>
                         </div>
                     </div>
-                    <div class="restaurant-distance">📍 ${restaurant.distance} (${restaurant.distanceKm}km)</div>
+                    <div class="restaurant-distance">📍 ${restaurant.distance}</div>
                     <div class="restaurant-tags">
                         ${restaurant.tags.map(tag => `<span class="restaurant-tag">${tag}</span>`).join('')}
                     </div>
                 </div>
             `).join('');
-            }
-
-            function generateSampleRestaurants(menu) {
-                // 실제 식당 이름 데이터
-                const realRestaurants = {
-                    '김치찌개': [
-                        '진미집', '엄마손 김치찌개', '김치찌개 전문점', '옛날 김치찌개',
-                        '할머니 손맛', '서울 김치찌개', '본가 김치찌개', '청기와식당',
-                        '마포김치찌개', '종로김치찌개', '고향식당', '맛나김치찌개'
-                    ],
-                    '된장찌개': [
-                        '토속촌', '된장마을', '시골밥상', '청국장 마을',
-                        '전통된장', '할머니 된장', '옛날 된장찌개', '고향집',
-                        '된장 전문점', '한정식 명가', '시골집', '전주식당'
-                    ],
-                    '비빔밥': [
-                        '전주 비빔밥', '전주중앙회관', '고궁', '한국관',
-                        '전주집', '비빔밥 하우스', '전통 비빔밥', '옛날 비빔밥',
-                        '서울 비빔밥', '비빔밥 명가', '전주식당', '한정식'
-                    ],
-                    '불고기': [
-                        '불고기 브라더스', '숯불 불고기', '전통 불고기', '서울 불고기',
-                        '명동 불고기', '불고기 명가', '한우 불고기', '옛날 불고기',
-                        '불고기 전문점', '왕십리 불고기', '숯불갈비', '고기마을'
-                    ],
-                    '삼겹살': [
-                        '연탄불고기', '목장직영', '흑돼지 전문점', '제주 흑돼지',
-                        '삼겹살 구이', '숯불 삼겹살', '백년 삼겹살', '삼겹살 명가',
-                        '한돈마을', '대패 삼겹살', '생삼겹살', '목살 전문점'
-                    ],
-                    '냉면': [
-                        '을지면옥', '평양면옥', '필동면옥', '우래옥',
-                        '함흥면옥', '냉면 명가', '평양냉면', '물냉면 전문',
-                        '냉면 맛집', '서울냉면', '진주냉면', '밀면 전문점'
-                    ],
-                    '칼국수': [
-                        '명동칼국수', '바지락칼국수', '손칼국수', '해물칼국수',
-                        '시골칼국수', '할머니 칼국수', '전통 칼국수', '옛날 칼국수',
-                        '칼국수 맛집', '들깨칼국수', '얼큰칼국수', '김치칼국수'
-                    ],
-                    '김밥': [
-                        '김가네', '김밥천국', '고봉민김밥', '이모네 김밥',
-                        '할머니 김밥', '충무김밥', '야채김밥', '참치김밥',
-                        '김밥 전문점', '김밥 나라', '분식집', '김밥 카페'
-                    ],
-                    '짜장면': [
-                        '공화춘', '차이나타운', '중화루', '백리향',
-                        '만다복', '짜장면 전문점', '중국집', '차이나',
-                        '북경', '상해반점', '중화반점', '짜장 명가'
-                    ],
-                    '짬뽕': [
-                        '홍콩반점', '짬뽕 전문점', '해물짬뽕', '사천짬뽕',
-                        '얼큰짬뽕', '짬뽕 명가', '중화요리', '중국집',
-                        '차이나타운', '백리향', '용궁반점', '짬뽕 맛집'
-                    ],
-                    '탕수육': [
-                        '중화요리', '탕수육 전문점', '옛날 탕수육', '바삭 탕수육',
-                        '차이나', '중국집', '탕수육 명가', '중화반점',
-                        '공화춘', '북경반점', '상해', '중화루'
-                    ],
-                    '마라탕': [
-                        '마라탕 전문점', '엽기 마라탕', '사천 마라탕', '마라샹궈',
-                        '마라 하우스', '중국식 마라탕', '얼큰 마라탕', '마라탕 맛집',
-                        '마라 명가', '홍콩 마라탕', '마라 천국', '사천요리'
-                    ],
-                    '볶음밥': [
-                        '볶음밥 전문점', '중화 볶음밥', '새우볶음밥', '김치볶음밥',
-                        '차이나', '중국집', '양장피 맛집', '중화요리',
-                        '볶음밥 명가', '해물볶음밥', '중화반점', '짜장 볶음밥'
-                    ],
-                    '초밥': [
-                        '스시로', '스시코', '히데스시', '조마루',
-                        '초밥 전문점', '스시 맛집', '회전초밥', '일식당',
-                        '스시 하우스', '오마카세', '초밥 명가', '연어초밥'
-                    ],
-                    '라멘': [
-                        '이치란', '라멘 전문점', '돈코츠 라멘', '미소라멘',
-                        '츠케멘', '라멘야', '일본 라멘', '규동 라멘',
-                        '라멘 맛집', '도쿄라멘', '라멘 하우스', '교자 라멘'
-                    ],
-                    '돈까스': [
-                        '카츠앤코', '사보텐', '야마노보루', '카레 돈까스',
-                        '돈까스 전문점', '일식 돈까스', '치즈돈까스', '등심돈까스',
-                        '돈까스 명가', '왕돈까스', '일본식 돈까스', '히레카츠'
-                    ],
-                    '우동': [
-                        '마루우동', '우동 전문점', '나가사키 우동', '카레우동',
-                        '일본 우동', '소바 우동', '우동 맛집', '온우동',
-                        '냉우동', '우동 하우스', '일식당', '규동 우동'
-                    ],
-                    '규동': [
-                        '요시노야', '규카츠', '규동 전문점', '일본 규동',
-                        '규카츠동', '규동 맛집', '규동 하우스', '덮밥 전문점',
-                        '일식 덮밥', '규동 명가', '규동야', '소고기 덮밥'
-                    ],
-                    '파스타': [
-                        '빕스', '아웃백', '파스타 전문점', '이탈리안',
-                        '토마토파스타', '크림파스타', '로제파스타', '봉골레',
-                        '파스타 하우스', '올리브가든', '파스타 맛집', '스파게티'
-                    ],
-                    '피자': [
-                        '피자헛', '도미노피자', '파파존스', '미스터피자',
-                        '피자 전문점', '이탈리안 피자', '나폴리피자', '치즈피자',
-                        '피자 맛집', '화덕피자', '피자 하우스', '핸드메이드 피자'
-                    ],
-                    '스테이크': [
-                        '아웃백', '빕스', '애슐리', '스테이크 전문점',
-                        '한우 스테이크', '안심 스테이크', '등심 스테이크', '립아이',
-                        '스테이크 하우스', '스테이크 맛집', '스테이크 명가', '그릴'
-                    ],
-                    '햄버거': [
-                        '맥도날드', '버거킹', '롯데리아', '맘스터치',
-                        '쉑쉑버거', '파이브가이즈', '수제버거', '버거 전문점',
-                        '햄버거 맛집', '치즈버거', '버거 하우스', '프리미엄 버거'
-                    ],
-                    '샐러드': [
-                        '샐러디', '스윗그린', '샐러드 전문점', '프레시 샐러드',
-                        '샐러드 바', '샐러드 카페', '비건 샐러드', '그린 샐러드',
-                        '샐러드 맛집', '샐러드 하우스', '헬시 샐러드', '파워 샐러드'
-                    ]
-                };
-
-                // 메뉴에 맞는 실제 식당 이름 가져오기
-                const restaurantNames = realRestaurants[menu.name] || [
-                    '맛있는 식당', '전문점', '명가', '본점',
-                    '하우스', '레스토랑', '맛집', '전통',
-                    '원조', '별미', '특선', '한정식'
-                ];
-
-                return Array(12).fill(null).map((_, i) => {
-                    // 식당 이름 순환 사용
-                    const restaurantName = restaurantNames[i % restaurantNames.length];
-                    
-                    // 거리를 0.1km ~ 12km 범위로 생성
-                    const distanceMeters = Math.floor(100 + Math.random() * 11900);
-                    const distanceKm = (distanceMeters / 1000).toFixed(1);
-                    
-                    const rating = (4.0 + Math.random() * 1.0).toFixed(1);
-                    const reviews = Math.floor(50 + Math.random() * 950);
-
-                    const allTags = ['친절함', '깔끔함', '맛집', '주차가능', '포장가능', '배달가능', '단체석', '룸있음'];
-                    const selectedTags = allTags
-                        .sort(() => 0.5 - Math.random())
-                        .slice(0, 3);
-
-                    return {
-                        name: restaurantName,
-                        rating: parseFloat(rating),
-                        reviews: reviews,
-                        distance: `${distanceMeters}m`,
-                        distanceKm: parseFloat(distanceKm),
-                        tags: selectedTags
-                    };
-                }).sort((a, b) => a.distanceKm - b.distanceKm); // 거리순 정렬
             }
         </script>
     </body>
