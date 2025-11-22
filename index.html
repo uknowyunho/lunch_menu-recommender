@@ -444,12 +444,6 @@
                 overflow-y: auto;
                 overflow-x: hidden;
                 padding-right: 10px;
-                scroll-snap-type: y mandatory;
-            }
-
-            /* 식당 카드 스크롤 스냅 */
-            .restaurant-card {
-                scroll-snap-align: start;
             }
 
             /* 식당 섹션 스크롤바 스타일링 */
@@ -665,19 +659,20 @@
                                 <!-- JavaScript로 채워질 예정 -->
                             </div>
                         </div>
+                    </div>
 
-                        <div id="mapContainer" style="display: none;">
-                            <div class="map-banner">
-                                <div class="map-banner-title">🗺️ 지도에서 위치 확인하기</div>
-                                <div class="map-banner-subtitle">빨간색 마커를 클릭하면 상세 정보를 볼 수 있어요!</div>
-                            </div>
-                            <iframe
-                                id="mapFrame"
-                                width="100%"
-                                height="500"
-                                style="border:0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
-                                loading="lazy"></iframe>
+                    <!-- 지도 (스크롤 영역 밖, 하단에 고정) -->
+                    <div id="mapContainer" style="display: none; margin-top: 20px;">
+                        <div class="map-banner">
+                            <div class="map-banner-title">🗺️ 지도에서 위치 확인하기</div>
+                            <div class="map-banner-subtitle">빨간색 마커를 클릭하면 상세 정보를 볼 수 있어요!</div>
                         </div>
+                        <iframe
+                            id="mapFrame"
+                            width="100%"
+                            height="350"
+                            style="border:0; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
+                            loading="lazy"></iframe>
                     </div>
 
                     <button class="location-btn" id="searchRestaurantBtn" style="display: none;">🔍 주변 식당 다시 검색</button>
@@ -1081,12 +1076,12 @@
                 // 샘플 식당 데이터 생성 (실제로는 API에서 받아와야 함)
                 displayRestaurantList(menu);
 
-                // Google Maps 표시 - 스크롤 영역 밖으로 이동
+                // Google Maps 표시
                 const searchQuery = encodeURIComponent(`${menu.name} 맛집`);
                 const mapsUrl = `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${searchQuery}&center=${userLocation.lat},${userLocation.lon}&zoom=15`;
 
                 mapFrame.src = mapsUrl;
-                // mapContainer.style.display = 'block'; // 지도 숨김
+                mapContainer.style.display = 'block';
                 searchRestaurantBtn.style.display = 'block';
                 restaurantList.style.display = 'block';
             }
