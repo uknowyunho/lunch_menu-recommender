@@ -1129,9 +1129,8 @@
                 </div>
             `;
 
-                // 샘플 식당 데이터 생성
-                allRestaurants = generateSampleRestaurants(menu);
-                displayRestaurantList(menu);
+                // Google Places API로 실제 식당 검색
+                fetchRealRestaurants(menu);
 
                 // Google Maps 표시
                 const searchQuery = encodeURIComponent(`${menu.name} 맛집`);
@@ -1140,8 +1139,75 @@
                 mapFrame.src = mapsUrl;
                 mapSection.style.display = 'block';
                 searchRestaurantBtn.style.display = 'block';
-                restaurantList.style.display = 'block';
                 distanceFilter.style.display = 'block';
+            }
+            
+            async function fetchRealRestaurants(menu) {
+                try {
+                    // Google Places API Nearby Search 사용
+                    const apiKey = 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8';
+                    const radius = 10000; // 10km 반경
+                    const keyword = encodeURIComponent(menu.name);
+                    
+                    // CORS 프록시 사용 (실제 환경에서는 백엔드에서 처리해야 함)
+                    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${userLocation.lat},${userLocation.lon}&radius=${radius}&keyword=${keyword}&language=ko&key=${apiKey}`;
+                    
+                    // 프록시를 통한 요청
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+                    
+                    const response = await fetch(proxyUrl);
+                    const data = await response.json();
+                    
+                    if (data.results && data.results.length > 0) {
+                        // 실제 API 데이터를 allRestaurants에 저장
+                        allRestaurants = data.results.slice(0, 12).map(place => {
+                            // 거리 계산 (Haversine formula)
+                            const R = 6371; // 지구 반지름 (km)
+                            const dLat = (place.geometry.location.lat - userLocation.lat) * Math.PI / 180;
+                            const dLon = (place.geometry.location.lng - userLocation.lon) * Math.PI / 180;
+                            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                                    Math.cos(userLocation.lat * Math.PI / 180) * Math.cos(place.geometry.location.lat * Math.PI / 180) *
+                                    Math.sin(dLon/2) * Math.sin(dLon/2);
+                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                            const distanceKm = R * c;
+                            const distanceMeters = Math.round(distanceKm * 1000);
+                            
+                            return {
+                                name: place.name,
+                                rating: place.rating || 4.0,
+                                reviews: place.user_ratings_total || 0,
+                                distance: distanceMeters >= 1000 ? `${(distanceMeters/1000).toFixed(1)}km` : `${distanceMeters}m`,
+                                distanceKm: parseFloat(distanceKm.toFixed(1)),
+                                tags: place.types ? place.types.slice(0, 3).map(t => {
+                                    const typeMap = {
+                                        'restaurant': '음식점',
+                                        'food': '식당',
+                                        'cafe': '카페',
+                                        'meal_takeaway': '포장가능',
+                                        'meal_delivery': '배달가능',
+                                        'bar': '주점'
+                                    };
+                                    return typeMap[t] || '맛집';
+                                }) : ['맛집', '추천', '인기']
+                            };
+                        }).sort((a, b) => a.distanceKm - b.distanceKm);
+                        
+                        restaurantList.style.display = 'block';
+                        filterRestaurantsByDistance();
+                    } else {
+                        // API 실패 시 샘플 데이터 사용
+                        console.log('Places API 응답 없음, 샘플 데이터 사용');
+                        allRestaurants = generateSampleRestaurants(menu);
+                        restaurantList.style.display = 'block';
+                        filterRestaurantsByDistance();
+                    }
+                } catch (error) {
+                    console.error('Places API 오류:', error);
+                    // 에러 발생 시 샘플 데이터 사용
+                    allRestaurants = generateSampleRestaurants(menu);
+                    restaurantList.style.display = 'block';
+                    filterRestaurantsByDistance();
+                }
             }
 
             function displayRestaurantList(menu) {
