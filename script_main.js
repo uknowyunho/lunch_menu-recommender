@@ -9,25 +9,10 @@ const month = today.getMonth() + 1;
 const day = today.getDate();
 todayDateElement.textContent = `${year}년 ${month}월 ${day}일`;
 
-// 총 근무일수 계산 (평일만 계산)
-function calculateWorkDays(startDate, endDate) {
-    let count = 0;
-    let currentDate = new Date(startDate);
-    
-    while (currentDate <= endDate) {
-        const dayOfWeek = currentDate.getDay();
-        // 월요일(1)부터 금요일(5)까지만 카운트
-        if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-            count++;
-        }
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-    
-    return count;
-}
-
-const workDays = calculateWorkDays(firstWorkDay, today);
-document.getElementById('totalDays').textContent = workDays;
+// 총 근무일수 계산 (주말 포함 전체 일수)
+const diffTime = Math.abs(today - firstWorkDay);
+const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1은 첫날 포함
+document.getElementById('totalDays').textContent = diffDays;
 
 // 요일별 메시지
 const dayMessages = {
