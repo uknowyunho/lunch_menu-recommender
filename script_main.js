@@ -12,9 +12,7 @@ todayDateElement.textContent = `${year}년 ${month}월 ${day}일`;
 // 총 근무일수 계산 (밀리초 차이를 일수로 변환)
 const diffTime = Math.abs(today - firstWorkDay);
 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1은 첫날 포함
-document
-    .getElementById('totalDays')
-    .textContent = diffDays;
+document.getElementById('totalDays').textContent = diffDays;
 
 // 현재 시간 및 퇴근까지 남은 시간 업데이트
 function updateTime() {
@@ -23,9 +21,7 @@ function updateTime() {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
 
-    document
-        .getElementById('currentTime')
-        .textContent = `${hours}:${minutes}:${seconds}`;
+    document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
 
     // 퇴근 시간 (19:00)까지 남은 시간 계산
     const endOfWork = new Date();
@@ -38,13 +34,9 @@ function updateTime() {
         const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const secondsLeft = Math.floor((diff % (1000 * 60)) / 1000);
 
-        document
-            .getElementById('remainingTime')
-            .textContent = `${hoursLeft}시간 ${minutesLeft}분 ${secondsLeft}초`;
+        document.getElementById('remainingTime').textContent = `${hoursLeft}시간 ${minutesLeft}분 ${secondsLeft}초`;
     } else {
-        document
-            .getElementById('remainingTime')
-            .textContent = '퇴근 시간이 지났습니다! 🎉';
+        document.getElementById('remainingTime').textContent = '퇴근 시간이 지났습니다! 🎉';
     }
 }
 
@@ -75,22 +67,16 @@ let isMainScreen = true; // 메인 화면 상태 추적
 
 // To Do 추가 모달 열기/닫기
 addScheduleBtn.addEventListener('click', () => {
-    addTodoModal
-        .classList
-        .add('active');
+    addTodoModal.classList.add('active');
 });
 
 closeTodoModal.addEventListener('click', () => {
-    addTodoModal
-        .classList
-        .remove('active');
+    addTodoModal.classList.remove('active');
 });
 
 addTodoModal.addEventListener('click', (e) => {
     if (e.target === addTodoModal) {
-        addTodoModal
-            .classList
-            .remove('active');
+        addTodoModal.classList.remove('active');
     }
 });
 
@@ -98,44 +84,30 @@ addTodoModal.addEventListener('click', (e) => {
 addTodoForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const timeValue = document
-        .getElementById('todoTime')
-        .value;
-    const todoTitle = document
-        .getElementById('todoTitle')
-        .value;
+    const timeValue = document.getElementById('todoTime').value;
+    const todoTitle = document.getElementById('todoTitle').value;
 
     // 시간을 AM/PM 형식으로 변환
     const [hours, minutes] = timeValue.split(':');
     const hour = parseInt(hours);
-    const ampm = hour >= 12
-        ? 'PM'
-        : 'AM';
-    const displayHour = hour > 12
-        ? hour - 12
-        : (
-            hour === 0
-                ? 12
-                : hour
-        );
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
     const formattedTime = `${String(displayHour).padStart(2, '0')}:${minutes} ${ampm}`;
 
     // 새 To Do 아이템 생성
     const todoItem = document.createElement('div');
     todoItem.className = 'schedule-item';
     todoItem.innerHTML = `
-                <div class="schedule-time">${formattedTime}</div>
-                <div class="schedule-title">${todoTitle}</div>
-            `;
+        <div class="schedule-time">${formattedTime}</div>
+        <div class="schedule-title">${todoTitle}</div>
+    `;
 
     // To Do List에 추가
     scheduleList.appendChild(todoItem);
 
     // 폼 초기화 및 모달 닫기
     addTodoForm.reset();
-    addTodoModal
-        .classList
-        .remove('active');
+    addTodoModal.classList.remove('active');
 
     // 애니메이션
     todoItem.style.animation = 'fadeInUp 0.5s ease-out';
@@ -150,12 +122,8 @@ logoText.addEventListener('click', () => {
     isMainScreen = true;
 
     // 출근 현황 박스와 하단 섹션 보이기
-    workStatusBox
-        .classList
-        .remove('hidden');
-    mainBottomSection
-        .classList
-        .remove('hidden');
+    workStatusBox.classList.remove('hidden');
+    mainBottomSection.classList.remove('hidden');
 
     // 카드 그리드 비우기
     cardGrid.innerHTML = '';
@@ -185,32 +153,24 @@ const defaultIcons = {
 
 // 모달 열기/닫기
 function openAddCardModal() {
-    addCardModal
-        .classList
-        .add('active');
+    addCardModal.classList.add('active');
 }
 
 // cardGrid 클릭 이벤트 위임 (동적으로 생성되는 버튼 처리)
 cardGrid.addEventListener('click', (e) => {
-    const addCard = e
-        .target
-        .closest('.add-card');
+    const addCard = e.target.closest('.add-card');
     if (addCard) {
         openAddCardModal();
     }
 });
 
 closeModal.addEventListener('click', () => {
-    addCardModal
-        .classList
-        .remove('active');
+    addCardModal.classList.remove('active');
 });
 
 addCardModal.addEventListener('click', (e) => {
     if (e.target === addCardModal) {
-        addCardModal
-            .classList
-            .remove('active');
+        addCardModal.classList.remove('active');
     }
 });
 
@@ -218,24 +178,12 @@ addCardModal.addEventListener('click', (e) => {
 addCardForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    const title = document
-        .getElementById('cardTitle')
-        .value;
-    const category = document
-        .getElementById('cardCategory')
-        .value;
-    const icon = document
-        .getElementById('cardIcon')
-        .value || defaultIcons[category];
-    const content = document
-        .getElementById('cardContent')
-        .value;
-    const tags = document
-        .getElementById('cardTags')
-        .value;
-    const link = document
-        .getElementById('cardLink')
-        .value || '#';
+    const title = document.getElementById('cardTitle').value;
+    const category = document.getElementById('cardCategory').value;
+    const icon = document.getElementById('cardIcon').value || defaultIcons[category];
+    const content = document.getElementById('cardContent').value;
+    const tags = document.getElementById('cardTags').value;
+    const link = document.getElementById('cardLink').value || '#';
 
     const card = createCard(title, category, icon, content, tags, link);
 
@@ -247,9 +195,7 @@ addCardForm.addEventListener('submit', (e) => {
     }
 
     addCardForm.reset();
-    addCardModal
-        .classList
-        .remove('active');
+    addCardModal.classList.remove('active');
 
     // 애니메이션
     card.style.animation = 'fadeInUp 0.5s ease-out';
@@ -261,30 +207,23 @@ function createCard(title, category, icon, content, tags, link) {
     card.className = 'card';
     card.setAttribute('data-category', category);
 
-    const today = new Date()
-        .toISOString()
-        .split('T')[0];
-    const tagArray = tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag);
-    const tagsHTML = tagArray
-        .map(tag => `<span class="tag">${tag}</span>`)
-        .join('');
+    const today = new Date().toISOString().split('T')[0];
+    const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    const tagsHTML = tagArray.map(tag => `<span class="tag">${tag}</span>`).join('');
 
     card.innerHTML = `
-                <div class="card-category">${categoryNames[category]}</div>
-                <div class="card-header">
-                    <div class="card-icon">${icon}</div>
-                    <h3 class="card-title">${title}</h3>
-                </div>
-                <div class="card-content">${content}</div>
-                <div class="card-tags">${tagsHTML}</div>
-                <div class="card-footer">
-                    <div class="card-date">📅 ${today}</div>
-                    <a href="${link}" class="card-link">자세히 보기 →</a>
-                </div>
-            `;
+        <div class="card-category">${categoryNames[category]}</div>
+        <div class="card-header">
+            <div class="card-icon">${icon}</div>
+            <h3 class="card-title">${title}</h3>
+        </div>
+        <div class="card-content">${content}</div>
+        <div class="card-tags">${tagsHTML}</div>
+        <div class="card-footer">
+            <div class="card-date">📅 ${today}</div>
+            <a href="${link}" class="card-link">자세히 보기 →</a>
+        </div>
+    `;
 
     return card;
 }
@@ -293,9 +232,7 @@ function createCard(title, category, icon, content, tags, link) {
 categoryBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         categoryBtns.forEach(b => b.classList.remove('active'));
-        btn
-            .classList
-            .add('active');
+        btn.classList.add('active');
 
         const category = btn.getAttribute('data-category');
         const cards = document.querySelectorAll('.card:not(.add-card)');
@@ -305,12 +242,8 @@ categoryBtns.forEach(btn => {
 
         if (category === 'all') {
             // 전체 카테고리: 출근 현황과 하단 섹션 숨기기, 모든 카드 보이기
-            workStatusBox
-                .classList
-                .add('hidden');
-            mainBottomSection
-                .classList
-                .add('hidden');
+            workStatusBox.classList.add('hidden');
+            mainBottomSection.classList.add('hidden');
 
             // 모든 카드 표시
             cards.forEach(card => {
@@ -322,19 +255,15 @@ categoryBtns.forEach(btn => {
                 addCardBtn = document.createElement('div');
                 addCardBtn.className = 'add-card';
                 addCardBtn.innerHTML = `
-                            <div class="add-card-icon">+</div>
-                            <div class="add-card-text">새 카드 추가</div>
-                        `;
+                    <div class="add-card-icon">+</div>
+                    <div class="add-card-text">새 카드 추가</div>
+                `;
                 cardGrid.appendChild(addCardBtn);
             }
         } else {
             // 특정 카테고리: 출근 현황과 하단 섹션 숨기기, 해당 카테고리 카드만 보이기
-            workStatusBox
-                .classList
-                .add('hidden');
-            mainBottomSection
-                .classList
-                .add('hidden');
+            workStatusBox.classList.add('hidden');
+            mainBottomSection.classList.add('hidden');
 
             // 기존 카드 필터링
             cards.forEach(card => {
@@ -350,34 +279,24 @@ categoryBtns.forEach(btn => {
                 addCardBtn = document.createElement('div');
                 addCardBtn.className = 'add-card';
                 addCardBtn.innerHTML = `
-                            <div class="add-card-icon">+</div>
-                            <div class="add-card-text">새 카드 추가</div>
-                        `;
+                    <div class="add-card-icon">+</div>
+                    <div class="add-card-text">새 카드 추가</div>
+                `;
                 cardGrid.appendChild(addCardBtn);
             }
         }
     });
 });
 
-// 검색 기능
+// 검색 기능 (문법 오류 수정됨)
 searchInput.addEventListener('input', (e) => {
-    const searchTerm = e
-        .target
-        .value
-        .toLowerCase();
+    const searchTerm = e.target.value.toLowerCase();
     const cards = document.querySelectorAll('.card:not(.add-card)');
 
     cards.forEach(card => {
-        const title = card.querySelector('.card-title')
-            ?
-                .textContent
-                .toLowerCase() || '';
-        const content = card.querySelector('.card-content')
-            ?
-                .textContent
-                .toLowerCase() || '';
-        const tags = Array
-            .from(card.querySelectorAll('.tag'))
+        const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+        const content = card.querySelector('.card-content')?.textContent.toLowerCase() || '';
+        const tags = Array.from(card.querySelectorAll('.tag'))
             .map(tag => tag.textContent.toLowerCase())
             .join(' ');
 
@@ -391,33 +310,17 @@ searchInput.addEventListener('input', (e) => {
 
 // localStorage에 카드 저장 (선택적 기능)
 function saveCards() {
-    const cards = Array
-        .from(document.querySelectorAll('.card:not(.add-card)'))
-        .map(card => ({
-            title: card
-                .querySelector('.card-title')
-                .textContent,
-            category: card.getAttribute('data-category'),
-            icon: card
-                .querySelector('.card-icon')
-                .textContent,
-            content: card
-                .querySelector('.card-content')
-                .textContent,
-            tags: Array
-                .from(card.querySelectorAll('.tag'))
-                .map(tag => tag.textContent)
-                .join(', '),
-            link: card
-                .querySelector('.card-link')
-                .href,
-            date: card
-                .querySelector('.card-date')
-                .textContent
-                .replace('📅 ', '')
-        }));
+    const cards = Array.from(document.querySelectorAll('.card:not(.add-card)')).map(card => ({
+        title: card.querySelector('.card-title').textContent,
+        category: card.getAttribute('data-category'),
+        icon: card.querySelector('.card-icon').textContent,
+        content: card.querySelector('.card-content').textContent,
+        tags: Array.from(card.querySelectorAll('.tag')).map(tag => tag.textContent).join(', '),
+        link: card.querySelector('.card-link').href,
+        date: card.querySelector('.card-date').textContent.replace('📅 ', '')
+    }));
 
-    // Note: localStorage is not available in Claude.ai artifacts This function is
-    // provided as a reference for use in external environments
+    // Note: localStorage is not available in Claude.ai artifacts
+    // This function is provided as a reference for use in external environments
     console.log('Cards to save:', cards);
 }
