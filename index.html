@@ -3,1215 +3,157 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>점심메뉴 추천 대시보드</title>
-        <script
-            type="text/javascript"
-            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=aefc5256989488e76344f4b213844bfb&libraries=services"></script>
+        <title>업무 참고 대시보드</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Playfair+Display:wght@700;900&display=swap"
+            rel="stylesheet">
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: #f5f6fa;
-                min-height: 100vh;
-            }
-
-            /* 사이드바 */
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                width: 250px;
-                height: 100vh;
-                background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 30px 20px;
-                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-                overflow-y: auto;
-                overflow-x: hidden;
-            }
-
-            /* 사이드바 스크롤바 스타일링 */
-            .sidebar::-webkit-scrollbar {
-                width: 8px;
-            }
-
-            .sidebar::-webkit-scrollbar-track {
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 10px;
-            }
-
-            .sidebar::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.3);
-                border-radius: 10px;
-            }
-
-            .sidebar::-webkit-scrollbar-thumb:hover {
-                background: rgba(255, 255, 255, 0.5);
-            }
-
-            .logo {
-                font-size: 1.5em;
-                font-weight: bold;
-                margin-bottom: 40px;
-                text-align: center;
-            }
-
-            .menu-item {
-                padding: 15px 20px;
-                margin-bottom: 10px;
-                border-radius: 10px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .menu-item:hover {
-                background: rgba(255, 255, 255, 0.2);
-            }
-
-            .menu-item.active {
-                background: rgba(255, 255, 255, 0.3);
-            }
-
-            .menu-icon {
-                font-size: 1.2em;
-            }
-
-            /* 메인 컨텐츠 */
-            .main-content {
-                margin-left: 250px;
-                padding: 30px;
-            }
-
-            .header {
-                background: white;
-                padding: 25px 30px;
-                border-radius: 15px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-                margin-bottom: 30px;
-            }
-
-            .header h1 {
-                color: #333;
-                font-size: 2em;
-                margin-bottom: 5px;
-            }
-
-            .header p {
-                color: #666;
-                font-size: 1em;
-            }
-
-            /* 대시보드 그리드 */
-            .dashboard-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 25px;
-                margin-bottom: 30px;
-            }
-
-            .card {
-                background: white;
-                padding: 25px;
-                border-radius: 15px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-                transition: all 0.3s ease;
-            }
-
-            .card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            }
-
-            .card-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-
-            .card-title {
-                font-size: 1.2em;
-                font-weight: bold;
-                color: #333;
-            }
-
-            .card-icon {
-                font-size: 2em;
-            }
-
-            /* 추천 카드 */
-            .recommend-card {
-                grid-column: span 2;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                min-height: 300px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-            }
-
-            .recommend-result {
-                text-align: center;
-                margin: 30px 0;
-            }
-
-            .recommend-emoji {
-                font-size: 5em;
-                margin-bottom: 15px;
-            }
-
-            .recommend-name {
-                font-size: 2.5em;
-                font-weight: bold;
-                margin-bottom: 10px;
-            }
-
-            .recommend-category {
-                font-size: 1.2em;
-                opacity: 0.9;
-            }
-
-            .recommend-btn {
-                background: white;
-                color: #667eea;
-                border: none;
-                padding: 15px 40px;
-                font-size: 1.1em;
-                border-radius: 50px;
-                cursor: pointer;
-                font-weight: bold;
-                transition: all 0.3s ease;
-            }
-
-            .recommend-btn:hover {
-                transform: scale(1.05);
-                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            }
-
-            /* 필터 버튼 */
-            .filter-group {
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-                margin-bottom: 20px;
-            }
-
-            .filter-btn {
-                padding: 10px 20px;
-                border: 2px solid rgba(255,255,255,0.3);
-                background: transparent;
-                color: white;
-                border-radius: 25px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                font-size: 0.9em;
-            }
-
-            .filter-btn:hover {
-                background: rgba(255,255,255,0.2);
-            }
-
-            .filter-btn.active {
-                background: white;
-                color: #667eea;
-            }
-
-            /* 통계 카드 */
-            .stat-value {
-                font-size: 2.5em;
-                font-weight: bold;
-                color: #667eea;
-                margin: 10px 0;
-            }
-
-            .stat-label {
-                color: #666;
-                font-size: 0.9em;
-            }
-
-            /* 리스트 */
-            .menu-list {
-                list-style: none;
-            }
-
-            .menu-list-item {
-                padding: 12px 15px;
-                background: #f8f9fa;
-                border-radius: 8px;
-                margin-bottom: 8px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                transition: all 0.3s ease;
-            }
-
-            .menu-list-item:hover {
-                background: #e9ecef;
-                transform: translateX(5px);
-            }
-
-            /* 위치 정보 */
-            .location-status {
-                text-align: center;
-                padding: 20px;
-                color: #666;
-            }
-
-            .loading-spinner {
-                width: 40px;
-                height: 40px;
-                border: 4px solid #f3f3f3;
-                border-top: 4px solid #667eea;
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-                margin: 0 auto 15px;
-            }
-
-            @keyframes spin {
-                0% {
-                    transform: rotate(0deg);
-                }
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-
-            .location-info {
-                padding: 15px 0;
-            }
-
-            .location-item {
-                display: flex;
-                align-items: flex-start;
-                margin-bottom: 12px;
-                padding: 10px;
-                background: #f8f9fa;
-                border-radius: 8px;
-            }
-
-            .location-label {
-                font-weight: bold;
-                color: #667eea;
-                min-width: 80px;
-                margin-right: 10px;
-            }
-
-            .location-value {
-                color: #333;
-                flex: 1;
-                word-break: break-word;
-            }
-
-            .location-btn {
-                width: 100%;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border: none;
-                padding: 12px 20px;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 0.95em;
-                font-weight: bold;
-                transition: all 0.3s ease;
-                margin-top: 15px;
-            }
-
-            .location-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-            }
-
-            .location-btn:disabled {
-                opacity: 0.6;
-                cursor: not-allowed;
-                transform: none;
-            }
-
-            .error-message {
-                color: #e74c3c;
-                text-align: center;
-                padding: 15px;
-                background: #fee;
-                border-radius: 8px;
-                margin-bottom: 10px;
-            }
-
-            /* 식당 카드 스타일 */
-            .restaurant-card {
-                background: white;
-                border-radius: 12px;
-                padding: 20px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                transition: all 0.3s ease;
-                cursor: pointer;
-                border: 2px solid transparent;
-            }
-
-            .restaurant-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
-                border-color: #667eea;
-            }
-
-            .restaurant-header {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 12px;
-            }
-
-            .restaurant-icon {
-                font-size: 2.5em;
-                flex-shrink: 0;
-            }
-
-            .restaurant-info {
-                flex: 1;
-            }
-
-            .restaurant-name {
-                font-size: 1.1em;
-                font-weight: bold;
-                color: #333;
-                margin-bottom: 5px;
-            }
-
-            .restaurant-rating {
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                color: #ffa500;
-                font-size: 0.9em;
-            }
-
-            .restaurant-distance {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 5px 12px;
-                border-radius: 20px;
-                font-size: 0.85em;
-                font-weight: bold;
-                display: inline-block;
-                margin-top: 8px;
-            }
-
-            .restaurant-tags {
-                display: flex;
-                gap: 8px;
-                flex-wrap: wrap;
-                margin-top: 10px;
-            }
-
-            .restaurant-tag {
-                background: #f0f0f0;
-                padding: 4px 10px;
-                border-radius: 15px;
-                font-size: 0.8em;
-                color: #666;
-            }
-
-            /* 지도 안내 배너 */
-            .map-banner {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                padding: 20px;
-                border-radius: 12px;
-                margin-bottom: 20px;
-                color: white;
-                text-align: center;
-                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            }
-
-            .map-banner-title {
-                font-size: 1.3em;
-                font-weight: bold;
-                margin-bottom: 8px;
-            }
-
-            .map-banner-subtitle {
-                opacity: 0.9;
-                font-size: 0.95em;
-            }
-
-            /* 식당 섹션 스크롤 컨테이너 */
-            .restaurant-scroll-container {
-                max-height: 320px;
-                overflow-y: auto;
-                overflow-x: hidden;
-                padding-right: 10px;
-            }
-
-            /* 식당 섹션 스크롤바 스타일링 */
-            .restaurant-scroll-container::-webkit-scrollbar {
-                width: 8px;
-            }
-
-            .restaurant-scroll-container::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 10px;
-                margin: 5px 0;
-            }
-
-            .restaurant-scroll-container::-webkit-scrollbar-thumb {
-                background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-                border-radius: 10px;
-            }
-
-            .restaurant-scroll-container::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(180deg, #5a6fd8 0%, #6a3f92 100%);
-            }
-
-            /* 식당 리스트 그리드 - 1열로 변경 */
-            .restaurant-list-grid {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            /* 거리 필터 버튼 */
-            .distance-btn {
-                padding: 10px 20px;
-                border: 2px solid #667eea;
-                background: white;
-                color: #667eea;
-                border-radius: 25px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                font-size: 0.95em;
-                font-weight: bold;
-            }
-
-            .distance-btn:hover {
-                background: #f0f3ff;
-                transform: translateY(-2px);
-            }
-
-            .distance-btn.active {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border-color: #667eea;
-            }
-
-            /* 반응형 */
-            @media (max-width: 768px) {
-                .sidebar {
-                    width: 70px;
-                    padding: 20px 10px;
-                }
-
-                .logo {
-                    font-size: 1.2em;
-                }
-
-                .menu-text {
-                    display: none;
-                }
-
-                .main-content {
-                    margin-left: 70px;
-                    padding: 20px;
-                }
-
-                .recommend-card {
-                    grid-column: span 1;
-                }
-
-                .dashboard-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .restaurant-scroll-container {
-                    max-height: 280px;
-                }
-
-                .restaurant-list-grid {
-                    gap: 12px;
-                }
-            }
+            /* CSS 코드는 별도 파일 참조 */
         </style>
     </head>
     <body>
-        <!-- 사이드바 -->
-        <div class="sidebar">
-            <div class="logo">🍽️ 메뉴봇</div>
-            <div class="menu-item active">
-                <span class="menu-icon">🏠</span>
-                <span class="menu-text">대시보드</span>
+        <div class="container">
+            <header class="header">
+                <h1>YUN'S TASK LAB</h1>
+                <img
+                    src="data:image/png;base64,[BASE64_IMAGE_DATA]"
+                    alt="Profile"
+                    class="header-icon"
+                    id="headerIcon">
+            </header>
+
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="카드 검색하기... (제목, 내용, 태그)">
+                <div class="logo-text" id="logoText">Home</div>
             </div>
-            <div class="menu-item">
-                <span class="menu-icon">🎲</span>
-                <span class="menu-text">랜덤 추천</span>
+
+            <div class="categories">
+                <button class="category-btn active" data-category="all">전체</button>
+                <button class="category-btn" data-category="lge">LGE</button>
+                <button class="category-btn" data-category="momq">맘큐</button>
+                <button class="category-btn" data-category="side">Side Project</button>
+                <button class="category-btn" data-category="meeting">Meeting</button>
+                <button class="category-btn" data-category="etc">기타</button>
             </div>
-            <div class="menu-item">
-                <span class="menu-icon">📊</span>
-                <span class="menu-text">통계</span>
+
+            <div class="work-status-box" id="workStatusBox">
+                <h2 class="work-status-title">나의 출근 현황</h2>
+                <div class="work-status-grid">
+                    <div class="status-item">
+                        <div class="status-label">첫 출근 날짜</div>
+                        <div class="status-date">2025년 10월 20일</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">오늘 날짜</div>
+                        <div class="status-date" id="todayDate"></div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">총 근무일수</div>
+                        <div class="status-value" id="totalDays"></div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 4px;">일</div>
+                    </div>
+                </div>
             </div>
-            <div class="menu-item">
-                <span class="menu-icon">⭐</span>
-                <span class="menu-text">즐겨찾기</span>
+
+            <div class="main-bottom-section" id="mainBottomSection">
+                <div class="info-box">
+                    <h3 class="info-box-title">✅ To Do List</h3>
+                    <div class="schedule-list" id="scheduleList">
+                        <div class="schedule-item">
+                            <div class="schedule-time">10:00 AM</div>
+                            <div class="schedule-title">팀 미팅</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">02:00 PM</div>
+                            <div class="schedule-title">프로젝트 리뷰</div>
+                        </div>
+                        <div class="schedule-item">
+                            <div class="schedule-time">04:30 PM</div>
+                            <div class="schedule-title">클라이언트 미팅</div>
+                        </div>
+                    </div>
+                    <button class="add-schedule-btn" id="addScheduleBtn">+ To Do 추가하기</button>
+                </div>
+
+                <div class="info-box">
+                    <h3 class="info-box-title">⏰ 퇴근까지</h3>
+                    <div class="time-display">
+                        <div class="current-time" id="currentTime"></div>
+                        <div class="time-until-work-end">퇴근 (19:00)까지 남은 시간</div>
+                        <div class="remaining-time" id="remainingTime"></div>
+                    </div>
+                </div>
             </div>
-            <div class="menu-item">
-                <span class="menu-icon">⚙️</span>
-                <span class="menu-text">설정</span>
+
+            <div class="grid" id="cardGrid"></div>
+        </div>
+
+        <!-- 모달 -->
+        <div class="modal" id="addCardModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">새 카드 추가</h2>
+                    <button class="modal-close" id="closeModal">×</button>
+                </div>
+                <form id="addCardForm">
+                    <div class="form-group">
+                        <label for="cardTitle">제목</label>
+                        <input type="text" id="cardTitle" required="required">
+                    </div>
+                    <div class="form-group">
+                        <label for="cardCategory">카테고리</label>
+                        <select id="cardCategory" required="required">
+                            <option value="lge">LGE</option>
+                            <option value="momq">맘큐</option>
+                            <option value="side">Side Project</option>
+                            <option value="meeting">Meeting</option>
+                            <option value="etc">기타</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardIcon">아이콘 (이모지)</label>
+                        <input type="text" id="cardIcon" placeholder="예: 📊, 💻, 🎯" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="cardContent">내용</label>
+                        <textarea id="cardContent" required="required"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardTags">태그 (쉼표로 구분)</label>
+                        <input type="text" id="cardTags" placeholder="예: Insider, 자동화, 가이드">
+                    </div>
+                    <div class="form-group">
+                        <label for="cardLink">링크 (선택사항)</label>
+                        <input type="url" id="cardLink" placeholder="https://...">
+                    </div>
+                    <button type="submit" class="btn-primary">카드 추가</button>
+                </form>
             </div>
         </div>
 
-        <!-- 메인 컨텐츠 -->
-        <div class="main-content">
-            <!-- 헤더 -->
-            <div class="header">
-                <h1>오늘 뭐 먹지? 🤔</h1>
-                <p id="currentDate"></p>
-            </div>
-
-            <!-- 대시보드 그리드 -->
-            <div class="dashboard-grid">
-                <!-- 메뉴 추천 카드 -->
-                <div class="card recommend-card">
-                    <div class="filter-group">
-                        <button class="filter-btn active" data-filter="all">전체</button>
-                        <button class="filter-btn" data-filter="korean">한식</button>
-                        <button class="filter-btn" data-filter="chinese">중식</button>
-                        <button class="filter-btn" data-filter="japanese">일식</button>
-                        <button class="filter-btn" data-filter="western">양식</button>
-                    </div>
-
-                    <div class="recommend-result" id="recommendResult">
-                        <div class="recommend-emoji">🍽️</div>
-                        <div class="recommend-name">메뉴를 추천해드릴게요!</div>
-                        <div class="recommend-category">아래 버튼을 눌러보세요</div>
-                    </div>
-
-                    <button class="recommend-btn" id="recommendBtn">🎲 메뉴 추천받기</button>
+        <!-- To Do 추가 모달 -->
+        <div class="modal" id="addTodoModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">To Do 추가</h2>
+                    <button class="modal-close" id="closeTodoModal">×</button>
                 </div>
-
-                <!-- 오늘의 추천 횟수 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">오늘의 추천 횟수</span>
-                        <span class="card-icon">🔢</span>
+                <form id="addTodoForm">
+                    <div class="form-group">
+                        <label for="todoTime">시간</label>
+                        <input type="time" id="todoTime" required="required">
                     </div>
-                    <div class="stat-value" id="todayCount">0</div>
-                    <div class="stat-label">번 추천받았어요</div>
-                </div>
-
-                <!-- 전체 메뉴 수 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">전체 메뉴 수</span>
-                        <span class="card-icon">📋</span>
+                    <div class="form-group">
+                        <label for="todoTitle">할 일</label>
+                        <input type="text" id="todoTitle" placeholder="할 일을 입력하세요" required="required">
                     </div>
-                    <div class="stat-value" id="totalMenus">0</div>
-                    <div class="stat-label">개의 메뉴가 있어요</div>
-                </div>
-
-                <!-- 인기 메뉴 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">최근 추천 메뉴</span>
-                        <span class="card-icon">🏆</span>
-                    </div>
-                    <ul class="menu-list" id="recentMenus">
-                        <li class="menu-list-item">아직 추천받은 메뉴가 없어요</li>
-                    </ul>
-                </div>
-
-                <!-- 카테고리별 통계 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">카테고리별 메뉴</span>
-                        <span class="card-icon">📊</span>
-                    </div>
-                    <ul class="menu-list">
-                        <li class="menu-list-item">
-                            <span>🍚 한식</span>
-                            <span id="koreanCount">0개</span>
-                        </li>
-                        <li class="menu-list-item">
-                            <span>🥟 중식</span>
-                            <span id="chineseCount">0개</span>
-                        </li>
-                        <li class="menu-list-item">
-                            <span>🍣 일식</span>
-                            <span id="japaneseCount">0개</span>
-                        </li>
-                        <li class="menu-list-item">
-                            <span>🍝 양식</span>
-                            <span id="westernCount">0개</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- 내 위치 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">내 위치</span>
-                        <span class="card-icon">📍</span>
-                    </div>
-                    <div id="locationInfo">
-                        <div class="location-status" id="locationStatus">
-                            <div class="loading-spinner"></div>
-                            <p>위치 정보를 가져오는 중...</p>
-                        </div>
-                    </div>
-                    <button class="location-btn" id="getLocationBtn">📍 위치 다시 가져오기</button>
-                </div>
-
-                <!-- 주변 식당 지도 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">추천 메뉴 주변 식당</span>
-                        <span class="card-icon">🗺️</span>
-                    </div>
-
-                    <!-- 거리 필터 버튼 -->
-                    <div id="distanceFilter" style="display: none; margin-bottom: 20px;">
-                        <div style="display: flex; gap: 10px; justify-content: center;">
-                            <button class="distance-btn active" data-distance="1">1km 이내</button>
-                            <button class="distance-btn" data-distance="5">5km 이내</button>
-                            <button class="distance-btn" data-distance="10">10km 이내</button>
-                        </div>
-                    </div>
-
-                    <!-- 스크롤 가능한 컨테이너 -->
-                    <div class="restaurant-scroll-container">
-                        <div id="restaurantInfo">
-                            <div class="location-status">
-                                <p style="color: #999;">메뉴를 먼저 추천받아주세요!</p>
-                            </div>
-                        </div>
-
-                        <!-- 식당 리스트 -->
-                        <div id="restaurantList" style="display: none; margin: 20px 0;">
-                            <div class="restaurant-list-grid">
-                                <!-- JavaScript로 채워질 예정 -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="location-btn" id="searchRestaurantBtn" style="display: none;">🔍 주변 식당 다시 검색</button>
-                </div>
-            </div>
-
-            <!-- 지도 섹션 (하단 전체 너비) -->
-            <div id="mapSection" style="display: none; margin-top: 30px;">
-                <div class="card" style="grid-column: 1 / -1;">
-                    <div class="card-header">
-                        <span class="card-title">지도에서 위치 확인하기</span>
-                        <span class="card-icon">🗺️</span>
-                    </div>
-                    <div class="map-banner">
-                        <div class="map-banner-title">🗺️ 추천 식당 위치</div>
-                        <div class="map-banner-subtitle">마커를 클릭하면 식당 정보를 볼 수 있어요!</div>
-                    </div>
-                    <div
-                        id="map"
-                        style="width: 100%; height: 450px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"></div>
-                </div>
+                    <button type="submit" class="btn-primary">추가</button>
+                </form>
             </div>
         </div>
 
         <script>
-            const menus = {
-                korean: [
-                    { name: '김치찌개', emoji: '🍲', category: '한식' },
-                    { name: '된장찌개', emoji: '🥘', category: '한식' },
-                    { name: '비빔밥', emoji: '🍚', category: '한식' },
-                    { name: '불고기', emoji: '🥩', category: '한식' },
-                    { name: '삼겹살', emoji: '🥓', category: '한식' },
-                    { name: '냉면', emoji: '🍜', category: '한식' },
-                    { name: '칼국수', emoji: '🍝', category: '한식' },
-                    { name: '김밥', emoji: '🍱', category: '한식' }
-                ],
-                chinese: [
-                    { name: '짜장면', emoji: '🍜', category: '중식' },
-                    { name: '짬뽕', emoji: '🍲', category: '중식' },
-                    { name: '탕수육', emoji: '🍖', category: '중식' },
-                    { name: '마라탕', emoji: '🌶️', category: '중식' },
-                    { name: '볶음밥', emoji: '🍚', category: '중식' }
-                ],
-                japanese: [
-                    { name: '초밥', emoji: '🍣', category: '일식' },
-                    { name: '라멘', emoji: '🍜', category: '일식' },
-                    { name: '돈까스', emoji: '🍛', category: '일식' },
-                    { name: '우동', emoji: '🍲', category: '일식' },
-                    { name: '규동', emoji: '🍱', category: '일식' }
-                ],
-                western: [
-                    { name: '파스타', emoji: '🍝', category: '양식' },
-                    { name: '피자', emoji: '🍕', category: '양식' },
-                    { name: '스테이크', emoji: '🥩', category: '양식' },
-                    { name: '햄버거', emoji: '🍔', category: '양식' },
-                    { name: '샐러드', emoji: '🥗', category: '양식' }
-                ]
-            };
-
-            let currentFilter = 'all';
-            let todayCount = 0;
-            let recentMenusList = [];
-            let userLocation = null;
-            let lastRecommendedMenu = null;
-            let currentDistanceFilter = 1;
-            let allRestaurants = [];
-            let map = null;
-            let markers = [];
-            let ps = null;
-
-            // 날짜 표시
-            const today = new Date();
-            const dateStr = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
-            document.getElementById('currentDate').textContent = dateStr;
-
-            // 전체 메뉴 수 계산
-            const totalMenuCount = Object.values(menus).flat().length;
-            document.getElementById('totalMenus').textContent = totalMenuCount;
-
-            // 카테고리별 메뉴 수 표시
-            document.getElementById('koreanCount').textContent = menus.korean.length + '개';
-            document.getElementById('chineseCount').textContent = menus.chinese.length + '개';
-            document.getElementById('japaneseCount').textContent = menus.japanese.length + '개';
-            document.getElementById('westernCount').textContent = menus.western.length + '개';
-
-            // 필터 버튼
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    currentFilter = btn.dataset.filter;
-                });
-            });
-
-            // 추천 버튼
-            const recommendBtn = document.getElementById('recommendBtn');
-            const recommendResult = document.getElementById('recommendResult');
-
-            recommendBtn.addEventListener('click', () => {
-                recommendBtn.disabled = true;
-
-                let count = 0;
-                const interval = setInterval(() => {
-                    const randomMenu = getRandomMenu();
-                    displayRecommendation(randomMenu);
-                    count++;
-
-                    if (count >= 15) {
-                        clearInterval(interval);
-                        recommendBtn.disabled = false;
-
-                        todayCount++;
-                        document.getElementById('todayCount').textContent = todayCount;
-
-                        addToRecentMenus(randomMenu);
-                        lastRecommendedMenu = randomMenu;
-                        searchNearbyRestaurants(randomMenu);
-                    }
-                }, 80);
-            });
-
-            function getRandomMenu() {
-                let menuList = [];
-                if (currentFilter === 'all') {
-                    menuList = Object.values(menus).flat();
-                } else {
-                    menuList = menus[currentFilter];
-                }
-                return menuList[Math.floor(Math.random() * menuList.length)];
-            }
-
-            function displayRecommendation(menu) {
-                recommendResult.innerHTML = `
-                <div class="recommend-emoji">${menu.emoji}</div>
-                <div class="recommend-name">${menu.name}</div>
-                <div class="recommend-category">${menu.category}</div>
-            `;
-            }
-
-            function addToRecentMenus(menu) {
-                recentMenusList.unshift(menu);
-                if (recentMenusList.length > 5) {
-                    recentMenusList.pop();
-                }
-
-                const recentMenusEl = document.getElementById('recentMenus');
-                recentMenusEl.innerHTML = recentMenusList
-                    .map(m => `<li class="menu-list-item">
-                    <span>${m.emoji} ${m.name}</span>
-                    <span>${m.category}</span>
-                </li>`)
-                    .join('');
-            }
-
-            // GPS 위치 정보
-            const locationInfo = document.getElementById('locationInfo');
-            const getLocationBtn = document.getElementById('getLocationBtn');
-
-            getLocation();
-            getLocationBtn.addEventListener('click', getLocation);
-
-            function getLocation() {
-                if (!navigator.geolocation) {
-                    showError('이 브라우저는 위치 서비스를 지원하지 않습니다.');
-                    return;
-                }
-
-                getLocationBtn.disabled = true;
-                locationInfo.innerHTML = `
-                <div class="location-status">
-                    <div class="loading-spinner"></div>
-                    <p>위치 정보를 가져오는 중...</p>
-                </div>
-            `;
-
-                navigator.geolocation.getCurrentPosition(showPosition, showError, {
-                    enableHighAccuracy: false,
-                    timeout: 15000,
-                    maximumAge: 60000
-                });
-            }
-
-            function showPosition(position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-
-                userLocation = { lat, lon };
-
-                locationInfo.innerHTML = `
-                <div class="location-info">
-                    <div class="location-item">
-                        <span class="location-label">🕐 확인 시간</span>
-                        <span class="location-value">${new Date(position.timestamp).toLocaleTimeString('ko-KR')}</span>
-                    </div>
-                </div>
-            `;
-
-                getLocationBtn.disabled = false;
-                getAddress(lat, lon);
-
-                if (lastRecommendedMenu) {
-                    searchNearbyRestaurants(lastRecommendedMenu);
-                }
-            }
-
-            function showError(error) {
-                let errorMessage = '';
-                switch (error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMessage = '위치 정보 접근이 거부되었습니다. 브라우저 설정에서 위치 권한을 허용해주세요.';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMessage = '위치 정보를 사용할 수 없습니다.';
-                        break;
-                    case error.TIMEOUT:
-                        errorMessage = '위치 정보 요청 시간이 초과되었습니다.';
-                        break;
-                    default:
-                        errorMessage = '알 수 없는 오류가 발생했습니다.';
-                }
-
-                locationInfo.innerHTML = `<div class="error-message">⚠️ ${errorMessage}</div>`;
-                getLocationBtn.disabled = false;
-            }
-
-            async function getAddress(lat, lon) {
-                try {
-                    const response = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
-                        { headers: { 'Accept-Language': 'ko' } }
-                    );
-
-                    const data = await response.json();
-
-                    if (data.display_name) {
-                        const addressDiv = document.createElement('div');
-                        addressDiv.className = 'location-item';
-                        addressDiv.innerHTML = `
-                        <span class="location-label">📍 주소</span>
-                        <span class="location-value">${data.display_name}</span>
-                    `;
-
-                        const locationInfoDiv = locationInfo.querySelector('.location-info');
-                        if (locationInfoDiv) {
-                            locationInfoDiv.insertBefore(addressDiv, locationInfoDiv.firstChild);
-                        }
-                    }
-                } catch (error) {
-                    console.log('주소 변환 실패:', error);
-                }
-            }
-
-            // 주변 식당 검색
-            const restaurantInfo = document.getElementById('restaurantInfo');
-            const restaurantList = document.getElementById('restaurantList');
-            const mapSection = document.getElementById('mapSection');
-            const searchRestaurantBtn = document.getElementById('searchRestaurantBtn');
-            const distanceFilter = document.getElementById('distanceFilter');
-
-            searchRestaurantBtn.addEventListener('click', () => {
-                if (lastRecommendedMenu) {
-                    searchNearbyRestaurants(lastRecommendedMenu);
-                }
-            });
-
-            document.querySelectorAll('.distance-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.distance-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    currentDistanceFilter = parseFloat(btn.dataset.distance);
-                    filterRestaurantsByDistance();
-                });
-            });
-
-            function searchNearbyRestaurants(menu) {
-                if (!userLocation) {
-                    restaurantInfo.innerHTML = `
-                    <div class="location-status">
-                        <p style="color: #e74c3c;">⚠️ 위치 정보를 먼저 허용해주세요!</p>
-                    </div>
-                `;
-                    return;
-                }
-
-                restaurantInfo.innerHTML = `
-                <div class="location-status">
-                    <div class="loading-spinner"></div>
-                    <p>"${menu.name}" 주변 식당을 검색하는 중...</p>
-                </div>
-            `;
-
-                setTimeout(() => {
-                    restaurantInfo.innerHTML = `
-                    <div class="location-info">
-                        <div class="location-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <span style="font-size: 3em;">${menu.emoji}</span>
-                                <div>
-                                    <div style="font-weight: bold; font-size: 1.5em; margin-bottom: 5px;">${menu.name}</div>
-                                    <div style="opacity: 0.9; font-size: 1em;">${menu.category} 맛집을 찾아드릴게요!</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                    mapSection.style.display = 'block';
-                    searchRestaurantBtn.style.display = 'block';
-                    distanceFilter.style.display = 'block';
-
-                    // Kakao SDK 확인 후 초기화
-                    waitForKakao(() => {
-                        initializeKakaoMap(menu);
-                    });
-                }, 300);
-            }
-
-            function waitForKakao(callback) {
-                if (typeof kakao !== 'undefined' && kakao.maps) {
-                    callback();
-                } else {
-                    let attempts = 0;
-                    const checkKakao = setInterval(() => {
-                        attempts++;
-                        if (typeof kakao !== 'undefined' && kakao.maps) {
-                            clearInterval(checkKakao);
-                            callback();
-                        } else if (attempts > 50) {
-                            clearInterval(checkKakao);
-                            restaurantInfo.innerHTML += `
-                                <div class="location-status" style="margin-top: 10px;">
-                                    <p style="color: #e67e22;">⚠️ 지도 API 로딩 중입니다. 잠시만 기다려주세요...</p>
-                                </div>
-                            `;
-                        }
-                    }, 100);
-                }
-            }
-
-            function initializeKakaoMap(menu) {
-                markers.forEach(marker => marker.setMap(null));
-                markers = [];
-
-                const mapContainer = document.getElementById('map');
-                const mapOption = {
-                    center: new kakao.maps.LatLng(userLocation.lat, userLocation.lon),
-                    level: 5
-                };
-
-                if (!map) {
-                    map = new kakao.maps.Map(mapContainer, mapOption);
-                } else {
-                    map.setCenter(new kakao.maps.LatLng(userLocation.lat, userLocation.lon));
-                }
-
-                const userMarkerPosition = new kakao.maps.LatLng(userLocation.lat, userLocation.lon);
-                const userMarker = new kakao.maps.Marker({
-                    position: userMarkerPosition,
-                    image: new kakao.maps.MarkerImage(
-                        'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
-                        new kakao.maps.Size(24, 35)
-                    )
-                });
-                userMarker.setMap(map);
-                markers.push(userMarker);
-
-                searchPlaces(menu);
-            }
-
-            function searchPlaces(menu) {
-                ps = new kakao.maps.services.Places();
-
-                const options = {
-                    location: new kakao.maps.LatLng(userLocation.lat, userLocation.lon),
-                    radius: 10000,
-                    category_group_code: 'FD6',
-                    sort: kakao.maps.services.SortBy.DISTANCE
-                };
-
-                ps.keywordSearch(menu.name, placesSearchCB, options);
-            }
-
-            function placesSearchCB(data, status) {
-                if (status === kakao.maps.services.Status.OK) {
-                    const infowindow = new kakao.maps.InfoWindow({zIndex: 1});
-
-                    allRestaurants = data.map(place => {
-                        const distance = calculateDistance(
-                            userLocation.lat,
-                            userLocation.lon,
-                            parseFloat(place.y),
-                            parseFloat(place.x)
-                        );
-
-                        const markerPosition = new kakao.maps.LatLng(place.y, place.x);
-                        const marker = new kakao.maps.Marker({
-                            position: markerPosition,
-                            title: place.place_name
-                        });
-
-                        marker.setMap(map);
-
-                        kakao.maps.event.addListener(marker, 'click', function() {
-                            const content = `
-                                <div style="padding: 10px; min-width: 200px;">
-                                    <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold;">${place.place_name}</h3>
-                                    <p style="margin: 4px 0; color: #666; font-size: 14px;">📍 ${distance.distanceKm}km</p>
-                                    ${place.category_name ? `<p style="margin: 4px 0; color: #666; font-size: 13px;">🍽️ ${place.category_name}</p>` : ''}
-                                    ${place.phone ? `<p style="margin: 4px 0; color: #666; font-size: 13px;">📞 ${place.phone}</p>` : ''}
-                                    ${place.road_address_name ? `<p style="margin: 4px 0; color: #999; font-size: 12px;">${place.road_address_name}</p>` : ''}
-                                </div>
-                            `;
-                            infowindow.setContent(content);
-                            infowindow.open(map, marker);
-                        });
-
-                        markers.push(marker);
-
-                        const tags = [];
-                        if (place.category_name) {
-                            const categories = place.category_name.split(' > ');
-                            if (categories.length > 0) {
-                                tags.push(categories[categories.length - 1]);
-                            }
-                        }
-                        if (place.phone) tags.push('전화가능');
-
-                        while (tags.length < 3) {
-                            const defaults = ['맛집', '추천', '인기'];
-                            const newTag = defaults.find(d => !tags.includes(d));
-                            if (newTag) tags.push(newTag);
-                            else break;
-                        }
-
-                        return {
-                            name: place.place_name,
-                            rating: 4.0 + Math.random() * 1.0,
-                            reviews: Math.floor(50 + Math.random() * 450),
-                            distance: distance.distanceKm >= 1 ? `${distance.distanceKm}km` : `${distance.distanceM}m`,
-                            distanceKm: distance.distanceKm,
-                            tags: tags.slice(0, 3)
-                        };
-                    }).sort((a, b) => a.distanceKm - b.distanceKm);
-
-                    restaurantList.style.display = 'block';
-                    filterRestaurantsByDistance();
-
-                    const bounds = new kakao.maps.LatLngBounds();
-                    bounds.extend(new kakao.maps.LatLng(userLocation.lat, userLocation.lon));
-                    markers.slice(1).forEach(marker => {
-                        bounds.extend(marker.getPosition());
-                    });
-                    map.setBounds(bounds);
-
-                } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-                    restaurantInfo.innerHTML += `
-                        <div class="location-status" style="margin-top: 10px;">
-                            <p style="color: #e67e22;">⚠️ 주변에 "${lastRecommendedMenu.name}" 식당을 찾을 수 없습니다.</p>
-                        </div>
-                    `;
-                }
-            }
-
-            function calculateDistance(lat1, lon1, lat2, lon2) {
-                const R = 6371;
-                const dLat = (lat2 - lat1) * Math.PI / 180;
-                const dLon = (lon2 - lon1) * Math.PI / 180;
-                const a = 
-                    Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon/2) * Math.sin(dLon/2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                const distanceKm = parseFloat((R * c).toFixed(1));
-                const distanceM = Math.round(distanceKm * 1000);
-
-                return { distanceKm, distanceM };
-            }
-
-            function filterRestaurantsByDistance() {
-                const filteredRestaurants = allRestaurants.filter(restaurant => {
-                    return restaurant.distanceKm <= currentDistanceFilter;
-                });
-
-                const listContainer = restaurantList.querySelector('div');
-
-                if (filteredRestaurants.length === 0) {
-                    listContainer.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #999;">
-                            <div style="font-size: 3em; margin-bottom: 10px;">🔍</div>
-                            <div style="font-size: 1.1em;">${currentDistanceFilter}km 이내에 식당이 없습니다.</div>
-                            <div style="font-size: 0.9em; margin-top: 5px;">더 넓은 범위로 검색해보세요!</div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                listContainer.innerHTML = filteredRestaurants.map(restaurant => `
-                <div class="restaurant-card">
-                    <div class="restaurant-header">
-                        <div class="restaurant-icon">${lastRecommendedMenu.emoji}</div>
-                        <div class="restaurant-info">
-                            <div class="restaurant-name">${restaurant.name}</div>
-                            <div class="restaurant-rating">
-                                ${'⭐'.repeat(Math.floor(restaurant.rating))}
-                                <span style="color: #333; font-weight: bold;">${restaurant.rating.toFixed(1)}</span>
-                                <span style="color: #999;">(${restaurant.reviews})</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="restaurant-distance">📍 ${restaurant.distance}</div>
-                    <div class="restaurant-tags">
-                        ${restaurant.tags.map(tag => `<span class="restaurant-tag">${tag}</span>`).join('')}
-                    </div>
-                </div>
-            `).join('');
-            }
+            /* JavaScript 코드는 별도 파일 참조 */
         </script>
     </body>
 </html>
