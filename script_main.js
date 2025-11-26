@@ -11,7 +11,7 @@ todayDateElement.textContent = `${year}년 ${month}월 ${day}일`;
 
 // 총 근무일수 계산 (밀리초 차이를 일수로 변환)
 const diffTime = Math.abs(today - firstWorkDay);
-const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1은 첫날 포함
+const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 document.getElementById('totalDays').textContent = diffDays;
 
 // 현재 시간 및 퇴근까지 남은 시간 업데이트
@@ -62,8 +62,8 @@ const closeTodoModal = document.getElementById('closeTodoModal');
 const addTodoForm = document.getElementById('addTodoForm');
 const scheduleList = document.getElementById('scheduleList');
 
-let addCardBtn = null; // 동적으로 생성될 버튼
-let isMainScreen = true; // 메인 화면 상태 추적
+let addCardBtn = null;
+let isMainScreen = true;
 
 // To Do 추가 모달 열기/닫기
 addScheduleBtn.addEventListener('click', () => {
@@ -102,34 +102,20 @@ addTodoForm.addEventListener('submit', (e) => {
         <div class="schedule-title">${todoTitle}</div>
     `;
 
-    // To Do List에 추가
     scheduleList.appendChild(todoItem);
-
-    // 폼 초기화 및 모달 닫기
     addTodoForm.reset();
     addTodoModal.classList.remove('active');
-
-    // 애니메이션
     todoItem.style.animation = 'fadeInUp 0.5s ease-out';
 });
 
-// Home 로고 클릭 이벤트 - 메인 화면으로 복귀
+// Home 로고 클릭 이벤트
 logoText.addEventListener('click', () => {
-    // 모든 카테고리 버튼에서 active 제거
     categoryBtns.forEach(btn => btn.classList.remove('active'));
-
-    // 메인 화면 상태로 설정
     isMainScreen = true;
-
-    // 출근 현황 박스와 하단 섹션 보이기
     workStatusBox.classList.remove('hidden');
     mainBottomSection.classList.remove('hidden');
-
-    // 카드 그리드 비우기
     cardGrid.innerHTML = '';
     addCardBtn = null;
-
-    // 검색 초기화
     searchInput.value = '';
 });
 
@@ -151,12 +137,12 @@ const defaultIcons = {
     etc: '📌'
 };
 
-// 모달 열기/닫기
+// 모달 열기
 function openAddCardModal() {
     addCardModal.classList.add('active');
 }
 
-// cardGrid 클릭 이벤트 위임 (동적으로 생성되는 버튼 처리)
+// cardGrid 클릭 이벤트
 cardGrid.addEventListener('click', (e) => {
     const addCard = e.target.closest('.add-card');
     if (addCard) {
@@ -187,7 +173,6 @@ addCardForm.addEventListener('submit', (e) => {
 
     const card = createCard(title, category, icon, content, tags, link);
 
-    // addCardBtn이 있으면 그 앞에 삽입, 없으면 그냥 추가
     if (addCardBtn) {
         cardGrid.insertBefore(card, addCardBtn);
     } else {
@@ -196,8 +181,6 @@ addCardForm.addEventListener('submit', (e) => {
 
     addCardForm.reset();
     addCardModal.classList.remove('active');
-
-    // 애니메이션
     card.style.animation = 'fadeInUp 0.5s ease-out';
 });
 
@@ -237,20 +220,16 @@ categoryBtns.forEach(btn => {
         const category = btn.getAttribute('data-category');
         const cards = document.querySelectorAll('.card:not(.add-card)');
 
-        // 메인 화면 상태 해제
         isMainScreen = false;
 
         if (category === 'all') {
-            // 전체 카테고리: 출근 현황과 하단 섹션 숨기기, 모든 카드 보이기
             workStatusBox.classList.add('hidden');
             mainBottomSection.classList.add('hidden');
 
-            // 모든 카드 표시
             cards.forEach(card => {
                 card.style.display = 'block';
             });
 
-            // 새 카드 추가 버튼 생성
             if (!addCardBtn) {
                 addCardBtn = document.createElement('div');
                 addCardBtn.className = 'add-card';
@@ -261,11 +240,9 @@ categoryBtns.forEach(btn => {
                 cardGrid.appendChild(addCardBtn);
             }
         } else {
-            // 특정 카테고리: 출근 현황과 하단 섹션 숨기기, 해당 카테고리 카드만 보이기
             workStatusBox.classList.add('hidden');
             mainBottomSection.classList.add('hidden');
 
-            // 기존 카드 필터링
             cards.forEach(card => {
                 if (card.getAttribute('data-category') === category) {
                     card.style.display = 'block';
@@ -274,7 +251,6 @@ categoryBtns.forEach(btn => {
                 }
             });
 
-            // 새 카드 추가 버튼이 없으면 생성
             if (!addCardBtn) {
                 addCardBtn = document.createElement('div');
                 addCardBtn.className = 'add-card';
@@ -288,14 +264,16 @@ categoryBtns.forEach(btn => {
     });
 });
 
-// 검색 기능 (문법 오류 수정됨)
+// 검색 기능
 searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const cards = document.querySelectorAll('.card:not(.add-card)');
 
     cards.forEach(card => {
-        const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
-        const content = card.querySelector('.card-content')?.textContent.toLowerCase() || '';
+        const titleElement = card.querySelector('.card-title');
+        const contentElement = card.querySelector('.card-content');
+        const title = titleElement ? titleElement.textContent.toLowerCase() : '';
+        const content = contentElement ? contentElement.textContent.toLowerCase() : '';
         const tags = Array.from(card.querySelectorAll('.tag'))
             .map(tag => tag.textContent.toLowerCase())
             .join(' ');
@@ -307,20 +285,3 @@ searchInput.addEventListener('input', (e) => {
         }
     });
 });
-
-// localStorage에 카드 저장 (선택적 기능)
-function saveCards() {
-    const cards = Array.from(document.querySelectorAll('.card:not(.add-card)')).map(card => ({
-        title: card.querySelector('.card-title').textContent,
-        category: card.getAttribute('data-category'),
-        icon: card.querySelector('.card-icon').textContent,
-        content: card.querySelector('.card-content').textContent,
-        tags: Array.from(card.querySelectorAll('.tag')).map(tag => tag.textContent).join(', '),
-        link: card.querySelector('.card-link').href,
-        date: card.querySelector('.card-date').textContent.replace('📅 ', '')
-    }));
-
-    // Note: localStorage is not available in Claude.ai artifacts
-    // This function is provided as a reference for use in external environments
-    console.log('Cards to save:', cards);
-}
